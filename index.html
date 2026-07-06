@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-     
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +34,7 @@
             position: absolute; top: 25px; right: 25px;
             background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color);
             padding: 6px 14px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: bold;
-            border-radius: 4px; transition: all 0.2s;
+            border-radius: 4px; transition: all 0.2s; z-index: 10;
         }
         .lang-switcher:hover { background: rgba(102, 252, 241, 0.1); }
 
@@ -64,14 +63,13 @@
         .fragment-box {
             background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 25px;
             margin-bottom: 35px; border: 1px dashed rgba(102, 252, 241, 0.3);
-            position: relative;
         }
         .fragment-box h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
         #user-fragment { font-size: 3rem; font-family: var(--font-mono); font-weight: bold; color: var(--accent-color); }
 
         .share-btn {
             background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color);
-            padding: 8px 16px; font-size: 0.8rem; font-weight: bold; border-radius: 4px;
+            padding: 10px 20px; font-size: 0.85rem; font-weight: bold; border-radius: 4px;
             margin-top: 15px; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
         }
         .share-btn:hover { background: var(--accent-color); color: var(--bg-color); }
@@ -90,10 +88,48 @@
         }
         button.action-btn:hover { background: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }
 
-        #result-message, #share-toast { margin-top: 15px; font-weight: 600; font-size: 0.9rem; min-height: 20px; }
+        #result-message { margin-top: 15px; font-weight: 600; font-size: 0.9rem; min-height: 20px; }
         .error { color: var(--error-red); }
         .success { color: var(--accent-color); }
         .hidden { display: none !important; }
+
+        /* ПОП-АП ПОДЕЛИТЬСЯ */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); display: flex; align-items: center;
+            justify-content: center; z-index: 100; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal {
+            background: var(--card-bg); padding: 30px; border-radius: 12px;
+            max-width: 400px; width: 90%; text-align: center;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 0 30px rgba(102, 252, 241, 0.2);
+            transform: scale(0.8); transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal { transform: scale(1); }
+
+        .modal h2 { font-size: 1.3rem; margin-bottom: 20px; letter-spacing: 1px; color: var(--accent-color); }
+        
+        #qrcode {
+            background: white; padding: 15px; border-radius: 8px;
+            display: inline-block; margin-bottom: 20px;
+        }
+        #qrcode img { display: block; margin: 0 auto; }
+
+        .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .modal-btn {
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 12px; border-radius: 6px; font-weight: 600;
+            font-size: 0.9rem; transition: all 0.2s;
+        }
+        .modal-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .close-modal { background: var(--accent-color); color: var(--bg-color); border: none; margin-top: 10px; }
+        .close-modal:hover { background: #fff; color: #000; }
+
+        #modal-toast { font-size: 0.85rem; margin-top: 10px; min-height: 18px; font-weight: 600; }
 
         .ascii-meme { font-size: 7px; line-height: 7px; white-space: pre; margin: 25px auto; display: inline-block; font-family: monospace; color: var(--accent-color); }
 
@@ -109,6 +145,7 @@
 
     <button class="lang-switcher" onclick="toggleLanguage()">[ EN ]</button>
 
+    <!-- ЭТАП 1 -->
     <div class="container" id="stage1">
         <h1 id="s1-title">PROJECT: ENIGMA 35</h1>
         <p class="mission-text" id="s1-desc">
@@ -133,8 +170,7 @@
         <div class="fragment-box">
             <h3 id="s1-frag-label">Ваш уникальный фрагмент пазла:</h3>
             <div id="user-fragment">LOADING...</div>
-            <button class="share-btn" onclick="shareProject()" id="s1-share-btn">Поделиться ключом</button>
-            <div id="share-toast"></div>
+            <button class="share-btn" onclick="openShareModal()" id="s1-share-btn">Поделиться сайтом</button>
         </div>
 
         <div class="input-group">
@@ -145,6 +181,7 @@
         </div>
     </div>
 
+    <!-- ЭТАП 2 -->
     <div class="container hidden" id="stage2">
         <h1 id="s2-title">STAGE 2 / ЭТАП 2</h1>
         <p class="mission-text" id="s2-desc">Первый уровень защиты пал. Вы доказали силу коллективного разума. Теперь проверим твои личные навыки.</p>
@@ -176,16 +213,35 @@
         </div>
     </div>
 
+    <!-- ФИНАЛ -->
     <div class="container hidden" id="stage3">
         <h1 id="s3-title">SYSTEM UNLOCKED</h1>
         <p id="s3-desc" style="font-size: 1.1rem; line-height: 1.8; color: var(--text-muted);">Вы полностью прошли Enigma 35! Ожидайте Глобального Обновления Сети...</p>
     </div>
 
+    <!-- ОКНО ПОДЕЛИТЬСЯ (МОДАЛКА) -->
+    <div class="modal-overlay" id="share-modal" onclick="closeShareModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h2 id="m-title">SHARE DATA / ПОДЕЛИТЬСЯ СЕЙЧАС</h2>
+            
+            <div id="qrcode"></div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="copyOnlyLink()" id="m-btn-link">Скопировать ссылку на сайт</button>
+                <button class="modal-btn" onclick="copyFullCipher()" id="m-btn-all">Скопировать ссылку + Мой фрагмент</button>
+                <button class="modal-btn close-modal" onclick="closeShareModal(null)" id="m-btn-close">Закрыть</button>
+            </div>
+            <div id="modal-toast"></div>
+        </div>
+    </div>
+
+    <!-- СКРИПТЫ: FIREBASE И QR -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
-        // --- ⚙️ ТВОЙ РАБОЧИЙ КОНФИГ FIREBASE ---
+        // --- ⚙️ КОНФИГ FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyB0LATt74Wk1ci368pkDsjg4K6M2O-3xcI",
             authDomain: "enigma-35.firebaseapp.com",
@@ -196,7 +252,6 @@
             appId: "1:494269568517:web:27b476d6ac0e214ddfee6c"
         };
         
-        // Инициализация базы данных
         let db;
         if(firebaseConfig.apiKey !== "ТВОЙ_API_KEY") {
             firebase.initializeApp(firebaseConfig);
@@ -221,17 +276,22 @@
                 s1FragLabel: "Ваш уникальный фрагмент пазла:",
                 s1InputLabel: "ВВЕДИТЕ НАЙДЕННЫЙ МИРОВОЙ КЛЮЧ:",
                 s1Btn: "Проверить ключ",
-                s1ShareBtn: "Поделиться ключом",
+                s1ShareBtn: "Поделиться сайтом",
                 lblOnline: "ОНЛАЙН СЕЙЧАС",
                 lblProgress: "НАЙДЕНО СИМВОЛОВ",
-                copied: "Скопировано в буфер обмена! Отправь друзьям.",
                 errWrong: "ОШИБКА: НЕВЕРНЫЙ КЛЮЧ. СИСТЕМА ЗАБЛОКИРОВАНА.",
                 s2Title: "STAGE 2 / ЭТАП 2",
                 s2Desc: "Первый уровень защиты пал. Вы доказали силу коллективного разума. Теперь проверим твои личные навыки.",
                 s2Hint: "Загляни в исходный код страницы (F12), найди параметр 'SECRET_BACKDOOR' и введи его сюда.",
                 s2Btn: "Взломать терминал",
                 s3Title: "ДОСТУП ПОЛУЧЕН",
-                s3Desc: "Вы полностью прошли Enigma 35! Вы успешно нашли скрытый бэкдор в коде страницы. Настоящий хакер видит структуру насквозь. Ожидайте Глобального Обновления Сети в следующем цикле..."
+                s3Desc: "Вы полностью прошли Enigma 35! Ожидайте Глобального Обновления Сети в следующем цикле...",
+                mTitle: "ПОДЕЛИТЬСЯ КВЕСТОМ",
+                mBtnLink: "Скопировать ссылку на сайт",
+                mBtnAll: "Скопировать ссылку + Мой фрагмент",
+                mBtnClose: "Закрыть",
+                copiedLink: "Ссылка скопирована в буфер!",
+                copiedAll: "Весь шифр скопирован! Отправляй друзьям!"
             },
             EN: {
                 s1Title: "PROJECT: ENIGMA 35",
@@ -240,17 +300,22 @@
                 s1FragLabel: "Your unique puzzle fragment:",
                 s1InputLabel: "ENTER THE GLOBAL KEY:",
                 s1Btn: "Verify Key",
-                s1ShareBtn: "Share Fragment",
+                s1ShareBtn: "Share Project",
                 lblOnline: "ONLINE NOW",
                 lblProgress: "FRAGMENTS FOUND",
-                copied: "Copied to clipboard! Share it with friends.",
                 errWrong: "ERROR: INVALID KEY. ACCESS DENIED.",
                 s2Title: "STAGE 2 / LEVEL 2",
                 s2Desc: "Congratulations! The first layer of defense has fallen. You have proven the power of collective intelligence.",
                 s2Hint: "Look 'under the hood' (View Source Code via F12), find the hidden variable 'SECRET_BACKDOOR' and type it here.",
                 s2Btn: "Bypass Terminal",
                 s3Title: "SYSTEM UNLOCKED",
-                s3Desc: "You have completely bypassed Enigma 35! A true hacker looks straight into the matrix. Awaiting Global Network Update in the next cycle..."
+                s3Desc: "You have completely bypassed Enigma 35! A awaiting Global Network Update in the next cycle...",
+                mTitle: "SHARE ENIGMA 35",
+                mBtnLink: "Copy Website URL",
+                mBtnAll: "Copy URL + My Fragment",
+                mBtnClose: "Close",
+                copiedLink: "URL copied to clipboard!",
+                copiedAll: "Full cipher data copied to clipboard!"
             }
         };
 
@@ -273,34 +338,66 @@
             document.getElementById('s2-btn').innerText = t.s2Btn;
             document.getElementById('s3-title').innerText = t.s3Title;
             document.getElementById('s3-desc').innerText = t.s3Desc;
+            document.getElementById('m-title').innerText = t.mTitle;
+            document.getElementById('m-btn-link').innerText = t.mBtnLink;
+            document.getElementById('m-btn-all').innerText = t.mBtnAll;
+            document.getElementById('m-btn-close').innerText = t.mBtnClose;
         }
 
         // --- ГЕНЕРАЦИЯ И ПРИВЯЗКА ФРАГМЕНТА ---
-        let userFragment = localStorage.getItem('enigma_user_fragment_v4');
+        let userFragment = localStorage.getItem('enigma_user_fragment_v5');
         if (!userFragment) {
             const randomIndex = Math.floor(Math.random() * FRAGMENTS_POOL.length);
             userFragment = FRAGMENTS_POOL[randomIndex];
-            localStorage.setItem('enigma_user_fragment_v4', userFragment);
+            localStorage.setItem('enigma_user_fragment_v5', userFragment);
         }
         document.getElementById('user-fragment').innerText = userFragment;
 
-        // --- ФУНКЦИЯ ПОДЕЛИТЬСЯ ---
-        function shareProject() {
-            const shareText = `[PROJECT: ENIGMA 35]\n🌍 Мой уникальный фрагмент мирового шифра: { ${userFragment} }\n🔑 Объедини его со своим, чтобы разгадать тайну: ${window.location.href}`;
+        // --- ЛОГИКА ОКНА ПОДЕЛИТЬСЯ И QR КОДА ---
+        let qrGenerated = false;
+        function openShareModal() {
+            document.getElementById('share-modal').classList.add('active');
+            if (!qrGenerated) {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: window.location.href,
+                    width: 160,
+                    height: 160,
+                    colorDark : "#0b0c10",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+                qrGenerated = true;
+            }
+        }
+
+        function closeShareModal(e) {
+            document.getElementById('share-modal').classList.remove('active');
+        }
+
+        function showModalToast(text, status) {
+            const toast = document.getElementById('modal-toast');
+            toast.innerText = text;
+            toast.className = status;
+            setTimeout(() => { toast.innerText = ""; }, 3000);
+        }
+
+        function copyOnlyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showModalToast(translations[currentLang].copiedLink, "success");
+            });
+        }
+
+        function copyFullCipher() {
+            const shareText = `[PROJECT: ENIGMA 35]\n🌍 Мой фрагмент мирового шифра: { ${userFragment} }\n🔑 Объедини его со своим, чтобы взломать систему: ${window.location.href}`;
             navigator.clipboard.writeText(shareText).then(() => {
-                const toast = document.getElementById('share-toast');
-                toast.innerText = translations[currentLang].copied;
-                toast.className = "success";
-                setTimeout(() => { toast.innerText = ""; }, 4000);
+                showModalToast(translations[currentLang].copiedAll, "success");
             });
         }
 
         // --- РАБОТА С РЕАЛЬНОЙ СТАТИСТИКОЙ (FIREBASE) ---
         if(db) {
-            // 1. Счётчик онлайн
             const onlineRef = db.ref('.info/connected');
             const myPresenceRef = db.ref('presence/').push();
-            
             onlineRef.on('value', (snap) => {
                 if (snap.val() === true) {
                     myPresenceRef.onDisconnect().remove();
@@ -310,24 +407,21 @@
             db.ref('presence/').on('value', (snap) => {
                 document.getElementById('live-online').innerText = snap.numChildren() || 1;
             });
-
-            // 2. Счётчик уникальных найденных фрагментов
             db.ref(`found_fragments/${userFragment}`).set(true);
             db.ref('found_fragments/').on('value', (snap) => {
                 const totalFound = snap.numChildren() || 1;
                 document.getElementById('live-progress').innerText = `${totalFound} / 28`;
             });
         } else {
-            // Имитация для локального тестирования без подключенной БД
             document.getElementById('live-online').innerText = Math.floor(Math.random() * 5) + 1;
             document.getElementById('live-progress').innerText = "1 / 28";
         }
 
-        // --- ЛОГИКА ТАЙМЕРА ---
-        let targetDate = localStorage.getItem('enigma_target_date_v4');
+        // --- ЛОГИКА ТАЙМЕРА (Сброшен на v5) ---
+        let targetDate = localStorage.getItem('enigma_target_date_v5');
         if (!targetDate) {
             targetDate = new Date().getTime() + (35 * 24 * 60 * 60 * 1000);
-            localStorage.setItem('enigma_target_date_v4', targetDate);
+            localStorage.setItem('enigma_target_date_v5', targetDate);
         }
         function updateTimer() {
             const now = new Date().getTime(); const difference = targetDate - now;
