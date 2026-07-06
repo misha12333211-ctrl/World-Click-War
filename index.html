@@ -1,534 +1,274 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Click War — Global Realtime Battle</title>
-    
-    <meta name="description" content="Engage in the ultimate global conflict. Click to support your country and climb the definitive live planetary leaderboard. No sign-up required.">
-    <meta name="keywords" content="click war, global leaderboard, realtime game, world clicker, country battle, web3 style game">
-    
-    <meta property="og:title" content="World Click War — Support Your Nation">
-    <meta property="og:description" content="Live planetary leaderboard. Click to lift your country to the top.">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+    <title>PROJECT: ENIGMA 35</title>
     <style>
+        /* Брутальный хакерский стиль (Никакого ИИ-глянца) */
         :root {
-            --bg: #0b0c10;
-            --panel: #13151c;
-            --border: #222633;
-            --text: #ffffff;
-            --text-muted: #62697a;
-            --accent: #00ffcc;
-            --accent-glow: rgba(0, 255, 204, 0.15);
-            --shadow: rgba(0, 0, 0, 0.4);
-        }
-
-        [data-theme="light"] {
-            --bg: #f4f5f8;
-            --panel: #ffffff;
-            --border: #e2e5ec;
-            --text: #0f1115;
-            --text-muted: #8890a6;
-            --accent: #0066cc;
-            --accent-glow: rgba(0, 102, 204, 0.1);
-            --shadow: rgba(0, 0, 0, 0.05);
+            --bg-color: #0a0a0a;
+            --matrix-green: #00ff66;
+            --error-red: #ff3333;
+            --font-family: 'Courier New', Courier, monospace;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* Убирает синее выделение на мобильных */
-            outline: none;
+            cursor: crosshair;
         }
 
         body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--matrix-green);
+            font-family: var(--font-family);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 24px 16px;
-            transition: background 0.3s, color 0.3s;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            background-image: linear-gradient(rgba(0, 255, 102, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 255, 102, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
-        /* Навигационная панель управления */
-        .controls {
+        .container {
+            max-width: 800px;
             width: 100%;
-            max-width: 500px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .control-btn {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px var(--shadow);
-        }
-
-        .control-btn:hover {
-            border-color: var(--text-muted);
-        }
-
-        /* Основной контент */
-        .main-stage {
-            width: 100%;
-            max-width: 500px;
             text-align: center;
-        }
-
-        h1 {
-            font-size: 2.4rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 6px;
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 40px;
-            font-weight: 400;
-        }
-
-        /* Сфера кликера */
-        .portal-wrapper {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 45px;
+            border: 3px solid var(--matrix-green);
+            padding: 40px 20px;
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 10px 10px 0px var(--matrix-green);
             position: relative;
         }
 
-        .click-sphere {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            box-shadow: 0 10px 30px var(--shadow), 0 0 40px var(--accent-glow);
-            transition: transform 0.05s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.2s;
-            user-select: none;
-        }
-
-        .click-sphere:active {
-            transform: scale(0.94);
-            border-color: var(--accent);
-        }
-
-        /* Сетка лидерборда */
-        .leaderboard {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 24px;
-            text-align: left;
-            box-shadow: 0 15px 35px var(--shadow);
-        }
-
-        .leaderboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .leaderboard-header h2 {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
-
-        .live-indicator {
-            font-size: 0.75rem;
-            color: var(--accent);
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-transform: uppercase;
-        }
-
-        .live-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: pulse 1.5s infinite ease-in-out;
-        }
-
-        .scroll-area {
-            max-height: 350px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .scroll-area::-webkit-scrollbar { width: 4px; }
-        .scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-        .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .row:last-child { border: none; }
-
-        .rank-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        .rank-number { color: var(--text-muted); min-width: 20px; font-size: 0.85rem; }
-        
-        .val {
-            font-variant-numeric: tabular-nums;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .current-user-country {
-            border-left: 3px solid var(--accent);
-            padding-left: 8px;
-        }
-
-        /* Всплывающие надписи при клике */
-        .floating-score {
+        /* Эффект шума/помех */
+        .container::before {
+            content: " ";
+            display: block;
             position: absolute;
-            color: var(--accent);
-            font-weight: 800;
-            font-size: 1.6rem;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
             pointer-events: none;
-            user-select: none;
-            animation: riseUp 0.4s ease-out forwards;
         }
 
-        /* Кастомное модальное окно (QR) */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.2s ease;
+        h1 {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--matrix-green);
         }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
-        .modal {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 30px;
-            border-radius: 24px;
-            text-align: center;
-            width: 90%;
-            max-width: 360px;
-            transform: scale(0.95);
-            transition: transform 0.2s ease;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        .mission-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #ffffff;
+            border-bottom: 1px dashed var(--matrix-green);
+            padding-bottom: 20px;
         }
-        .modal-overlay.active .modal { transform: scale(1); }
 
-        .qr-frame {
-            background: #fff;
-            padding: 16px;
-            border-radius: 16px;
-            display: inline-block;
-            margin-bottom: 24px;
+        /* Таймер обратного отсчета */
+        #timer {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
-        .qr-frame img { display: block; width: 180px; height: 180px; }
 
-        .action-btn {
-            background: var(--text);
-            color: var(--bg);
-            border: none;
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.2s;
+        /* Блок с персональной буквой */
+        .fragment-box {
+            border: 2px dashed var(--matrix-green);
+            padding: 20px;
+            margin: 30px 0;
+            background: rgba(0, 255, 102, 0.05);
+        }
+
+        .fragment-box h3 {
+            font-size: 1rem;
             margin-bottom: 10px;
-        }
-        .action-btn:hover { opacity: 0.9; }
-        
-        .close-link {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            text-decoration: underline;
+            text-transform: uppercase;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
+        #user-fragment {
+            font-size: 3.5rem;
+            font-weight: bold;
+            animation: blink 1s infinite alternate;
         }
-        @keyframes riseUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-80px) scale(0.8); opacity: 0; }
+
+        /* Форма ввода финального шифра */
+        .input-group {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="text"] {
+            background: transparent;
+            border: 2px solid var(--matrix-green);
+            padding: 12px 20px;
+            color: var(--matrix-green);
+            font-family: var(--font-family);
+            font-size: 1.2rem;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            box-shadow: 0 0 15px var(--matrix-green);
+        }
+
+        button {
+            background: var(--matrix-green);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 30px;
+            font-family: var(--font-family);
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #ffffff;
+            box-shadow: 0 0 15px #ffffff;
+            transform: translateY(-2px);
+        }
+
+        #result-message {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .error { color: var(--error-red); text-shadow: 0 0 5px var(--error-red); }
+        .success { color: var(--matrix-green); text-shadow: 0 0 5px var(--matrix-green); }
+
+        @keyframes blink {
+            from { opacity: 1; text-shadow: 0 0 20px var(--matrix-green); }
+            to { opacity: 0.4; text-shadow: 0 0 2px var(--matrix-green); }
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            #timer { font-size: 2rem; }
+            #user-fragment { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <div class="btn-group">
-            <button class="control-btn" id="lang-toggle">EN</button>
-            <button class="control-btn" id="theme-toggle">🌗</button>
+    <div class="container">
+        <h1>PROJECT: ENIGMA 35</h1>
+        
+        <p class="mission-text">
+            Один человек не способен разгадать это. Истина разделена между всеми жителями Земли. 
+            У тебя есть только один фрагмент. У твоих друзей — другие. Объединяйтесь в сообщества, 
+            делитесь фрагментами и введите финальный ключ до того, как таймер обнулится.
+        </p>
+
+        <div>ВРЕМЯ ДО ИСХОДА:</div>
+        <div id="timer">35:00:00:00</div>
+
+        <div class="fragment-box">
+            <h3>Ваш уникальный фрагмент пазла:</h3>
+            <div id="user-fragment">LOADING...</div>
+            <p style="font-size: 0.8rem; margin-top: 10px; color: #aaa;">
+                (Этот фрагмент закреплен за вашим браузером. Передайте его остальным)
+            </p>
         </div>
-        <button class="control-btn" id="qr-open-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg>
-            <span id="txt-qr-btn">Share</span>
-        </button>
-    </div>
 
-    <div class="main-stage">
-        <h1 id="txt-title">World Click War</h1>
-        <p class="subtitle" id="txt-subtitle">Global conflict resolved in real-time clicks.</p>
-
-        <div class="portal-wrapper" id="portal">
-            <button class="click-sphere" id="sphere">🌍</button>
-        </div>
-
-        <div class="leaderboard">
-            <div class="leaderboard-header">
-                <h2 id="txt-board-title">Planetary Leaderboard</h2>
-                <div class="live-indicator">
-                    <div class="live-dot"></div>
-                    <span id="txt-live">Live</span>
-                </div>
-            </div>
-            <div class="scroll-area" id="leaderboard-list">
-                </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-overlay">
-        <div class="modal">
-            <div class="qr-frame">
-                <img id="qr-image" src="" alt="QR Code">
-            </div>
-            <button class="action-btn" id="copy-btn">Copy Link</button>
-            <div class="close-link" id="modal-close">Close</div>
+        <div class="input-group">
+            <label for="solution">ВВЕДИТЕ НАЙДЕННЫЙ МИРОВОЙ КЛЮЧ:</label>
+            <input type="text" id="solution" placeholder="КОД ЗДЕСЬ..." autocomplete="off">
+            <button onclick="checkSolution()">Проверить ключ</button>
+            <div id="result-message"></div>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // НАСТРОЙКА FIREBASE (Вставь свои данные сюда)
-        // ==========================================
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_MID",
-            appId: "YOUR_APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // Словарь локализации (RU / EN)
-        const i18n = {
-            en: {
-                title: "World Click War",
-                subtitle: "Global conflict resolved in real-time clicks.",
-                boardTitle: "Planetary Leaderboard",
-                live: "Live",
-                share: "Share",
-                copy: "Copy Link",
-                copied: "Copied!",
-                close: "Close"
-            },
-            ru: {
-                title: "Мировая Битва",
-                subtitle: "Глобальное противостояние в реальном времени.",
-                boardTitle: "Планетарный Топ",
-                live: "Живой статус",
-                share: "Поделиться",
-                copy: "Копировать ссылку",
-                copied: "Скопировано!",
-                close: "Закрыть"
-            }
-        };
-
-        // Официальный международный список стран (БЕЗ РОССИИ)
-        const countries = {
-            "AM":"🇦🇲 Armenia","AF":"🇦🇫 Afghanistan","AL":"🇦🇱 Albania","DZ":"🇩🇿 Algeria","AD":"🇦🇩 Andorra","AO":"🇦🇴 Angola","AG":"🇦🇬 Antigua & Barbuda","AR":"🇦🇷 Argentina","AU":"🇦🇺 Australia","AT":"🇦🇹 Austria","AZ":"🇦🇿 Azerbaijan","BS":"🇧🇸 Bahamas","BH":"🇧🇭 Bahrain","BD":"🇧🇩 Bangladesh","BB":"🇧🇧 Barbados","BY":"🇧🇾 Belarus","BE":"🇧🇪 Belgium","BZ":"🇧🇿 Belize","BJ":"🇧🇯 Benin","BT":"🇧🇹 Bhutan","BO":"🇧🇴 Bolivia","BA":"🇧🇦 Bosnia","BW":"🇧🇼 Botswana","BR":"🇧🇷 Brazil","BN":"🇧🇳 Brunei","BG":"🇧🇬 Bulgaria","BF":"🇧🇫 Burkina Faso","BI":"🇧🇮 Burundi","KH":"🇰🇭 Cambodia","CM":"🇨🇲 Cameroon","CA":"🇨🇦 Canada","CV":"🇨🇻 Cape Verde","CF":"🇨🇫 Central African Rep.","TD":"🇹🇩 Chad","CL":"🇨🇱 Chile","CN":"🇨🇳 China","CO":"🇨🇴 Colombia","KM":"🇰🇲 Comoros","CG":"🇨🇬 Congo","CR":"🇨🇷 Costa Rica","CI":"🇨🇮 Ivory Coast","HR":"🇭🇷 Croatia","CU":"🇨🇺 Cuba","CY":"🇨🇾 Cyprus","CZ":"🇨🇿 Czechia","DK":"🇩🇰 Denmark","DJ":"🇩🇯 Djibouti","DM":"🇩🇲 Dominica","DO":"🇩🇴 Dominican Rep.","EC":"🇪🇨 Ecuador","EG":"🇪🇬 Egypt","SV":"🇸🇻 El Salvador","GQ":"🇬🇶 Equatorial Guinea","ER":"🇪🇷 Eritrea","EE":"🇪🇪 Estonia","ET":"🇪🇹 Ethiopia","FJ":"🇫🇯 Fiji","FI":"🇫🇮 Finland","FR":"🇫🇷 France","GA":"🇬🇦 Gabon","GM":"🇬🇲 Gambia","GE":"🇬🇪 Georgia","DE":"🇩🇪 Germany","GH":"🇬🇭 Ghana","GR":"🇬🇷 Greece","GD":"🇬🇩 Grenada","GT":"🇬🇹 Guatemala","GN":"🇬🇳 Guinea","GW":"🇬🇼 Guinea-Bissau","GY":"🇬🇾 Guyana","HT":"🇭🇹 Haiti","HN":"🇭🇳 Honduras","HU":"🇭🇺 Hungary","IS":"🇮🇸 Iceland","IN":"🇮🇳 India","ID":"🇮🇩 Indonesia","IR":"🇮🇷 Iran","IQ":"🇮🇶 Iraq","IE":"🇮🇪 Ireland","IL":"🇮🇱 Israel","IT":"🇮🇹 Italy","JM":"🇯🇲 Jamaica","JP":"🇯🇵 Japan","JO":"🇯🇴 Jordan","KZ":"🇰🇿 Kazakhstan","KE":"🇰🇪 Kenya","KI":"🇰🇮 Kiribati","KP":"🇰🇵 North Korea","KR":"🇰🇷 South Korea","KW":"🇰🇼 Kuwait","KG":"🇰🇬 Kyrgyzstan","LA":"🇱🇦 Laos","LV":"🇱🇻 Latvia","LB":"🇱🇧 Lebanon","LS":"🇱🇸 Lesotho","LR":"🇱🇷 Liberia","LY":"🇱🇾 Libya","LI":"🇱🇮 Liechtenstein","LT":"🇱🇹 Lithuania","LU":"🇱🇺 Luxembourg","MK":"🇲🇰 North Macedonia","MG":"🇲🇬 Madagascar","MW":"🇲🇼 Malawi","MY":"🇲🇾 Malaysia","MV":"🇲🇻 Maldives","ML":"🇲🇱 Mali","MT":"🇲🇹 Malta","MH":"🇲🇭 Marshall Islands","MR":"🇲🇷 Mauritania","MU":"🇲🇺 Mauritius","MX":"🇲🇽 Mexico","FM":"🇫🇲 Micronesia","MD":"🇲🇩 Moldova","MC":"🇲🇨 Monaco","MN":"🇲🇳 Mongolia","ME":"🇲🇪 Montenegro","MA":"🇲🇦 Morocco","MZ":"🇲🇿 Mozambique","MM":"🇲🇲 Myanmar","NA":"🇳🇦 Namibia","NR":"🇳🇷 Nauru","NP":"🇳🇵 Nepal","NL":"🇳🇱 Netherlands","NZ":"🇳🇿 New Zealand","NI":"🇳🇮 Nicaragua","NE":"🇳🇪 Niger","NG":"🇳🇬 Nigeria","NO":"🇳🇴 Norway","OM":"🇴🇲 Oman","PK":"🇵🇰 Pakistan","PW":"🇵🇼 Palau","PS":"🇵🇸 Palestine","PA":"🇵🇦 Panama","PG":"🇵🇬 Papua New Guinea","PY":"🇵🇾 Paraguay","PE":"🇵🇪 Peru","PH":"🇵🇭 Philippines","PL":"🇵🇱 Poland","PT":"🇵🇹 Portugal","QA":"🇶🇦 Qatar","RO":"🇷🇴 Romania","RW":"🇷🇼 Rwanda","KN":"🇰🇳 St. Kitts & Nevis","LC":"🇱🇨 St. Lucia","VC":"🇻🇨 St. Vincent","WS":"🇼🇸 Samoa","SM":"🇸🇲 San Marino","ST":"🇸🇹 Sao Tome","SA":"🇸🇦 Saudi Arabia","SN":"🇸🇳 Senegal","RS":"🇷🇸 Serbia","SC":"🇸🇨 Seychelles","SL":"🇸🇱 Sierra Leone","SG":"🇸🇬 Singapore","SK":"🇸🇰 Slovakia","SI":"🇸🇮 Slovenia","SB":"🇸🇧 Solomon Islands","SO":"🇸🇴 Somalia","ZA":"🇿🇦 South Africa","ES":"🇪🇸 Spain","LK":"🇱🇰 Sri Lanka","SD":"🇸🇩 Sudan","SR":"🇸🇷 Suriname","SE":"🇸🇪 Sweden","CH":"🇨🇭 Switzerland","SY":"🇸🇾 Syria","TW":"🇹🇼 Taiwan","TJ":"🇹🇯 Tajikistan","TZ":"🇹🇿 Tanzania","TH":"🇹🇭 Thailand","TL":"🇹🇱 Timor-Leste","TG":"🇹🇬 Togo","TO":"🇹🇴 Tonga","TT":"🇹🇹 Trinidad & Tobago","TN":"🇹🇳 Tunisia","TR":"🇹🇷 Turkey","TM":"🇹🇲 Turkmenistan","TV":"🇹🇻 Tuvalu","UG":"🇺🇬 Uganda","UA":"🇺🇦 Ukraine","AE":"🇦🇪 UAE","GB":"🇬🇧 United Kingdom","US":"🇺🇸 USA","UY":"🇺🇾 Uruguay","UZ":"🇺🇿 Uzbekistan","VU":"🇻🇺 Vanuatu","VE":"🇻🇪 Venezuela","VN":"🇻🇳 Vietnam","YE":"🇾🇪 Yemen","ZM":"🇿🇲 Zambia","ZW":"🇿🇼 Zimbabwe"
-        };
-
-        // Состояние приложения
-        let currentLang = localStorage.getItem('lang') || 'en';
-        let currentTheme = localStorage.getItem('theme') || 'dark';
-        let userCountryCode = "US";
-
-        // Попытка точного определения локации юзера (дефолт — Армения, если часовой пояс Ереван)
-        try {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (tz.includes("Yerevan")) userCountryCode = "AM";
-            else {
-                const browserLang = navigator.language.split('-')[1];
-                if (browserLang && countries[browserLang.toUpperCase()]) {
-                    userCountryCode = browserLang.toUpperCase();
-                }
-            }
-        } catch(e) {}
-
-        // Инициализация интерфейса
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        updateInterfaceText();
-
-        // Элементы управления
-        const sphere = document.getElementById('sphere');
-        const portal = document.getElementById('portal');
-        const listContainer = document.getElementById('leaderboard-list');
+        // --- НАСТРОЙКИ ИГРЫ ---
+        // Секретная фраза, которую должны угадать (в верхнем регистре)
+        const SECRET_ANSWER = "HTML CSS JAVASCRIPT 2026"; 
         
-        // Клик по сфере (отправка в БД)
-        sphere.addEventListener('click', () => {
-            spawnFloatingText();
-            db.ref('war/' + userCountryCode).transaction(score => (score || 0) + 1);
-        });
+        // Набор символов, которые раздаются пользователям (твоя секретная фраза + случайный мусор, чтобы запутать)
+        const FRAGMENTS_POOL = ["H-1", "T-2", "M-3", "L-4", "C-5", "S-6", "S-7", "J-8", "A-9", "V-10", "S-11", "R-12", "I-13", "P-14", "T-15", "2-16", "0-17", "2-18", "6-19", "X-99", "Z-44"];
 
-        // Живой стриминг данных из Firebase
-        db.ref('war').on('value', (snapshot) => {
-            const serverData = snapshot.val() || {};
-            
-            // Формируем полный список. Если в базе данных по стране ничего нет, подставляем 0.
-            let fullList = [];
-            for (let code in countries) {
-                fullList.push({
-                    code: code,
-                    name: countries[code],
-                    score: serverData[code] || 0
-                });
-            }
-
-            // Сортировка: Сначала лидеры по кликам, далее по алфавиту
-            fullList.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-
-            // Чистый рендеринг без мерцаний экрана
-            listContainer.innerHTML = '';
-            fullList.forEach((item, index) => {
-                const row = document.createElement('div');
-                row.classList.add('row');
-                if(item.code === userCountryCode) row.classList.add('current-user-country');
-
-                row.innerHTML = `
-                    <div class="rank-info">
-                        <span class="rank-number">#${index + 1}</span>
-                        <span>${item.name}</span>
-                    </div>
-                    <div class="val">${item.score.toLocaleString()}</div>
-                `;
-                listContainer.appendChild(row);
-            });
-        });
-
-        // Переключение языка
-        document.getElementById('lang-toggle').addEventListener('click', () => {
-            currentLang = currentLang === 'en' ? 'ru' : 'en';
-            localStorage.setItem('lang', currentLang);
-            updateInterfaceText();
-        });
-
-        // Переключение темы
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('theme', currentTheme);
-            document.documentElement.setAttribute('data-theme', currentTheme);
-        });
-
-        // Работа с Модалкой (QR и Копирование)
-        const overlay = document.getElementById('modal-overlay');
-        const qrImage = document.getElementById('qr-image');
-
-        document.getElementById('qr-open-btn').addEventListener('click', () => {
-            const currentUrl = window.location.href;
-            // Генерируем QR-код через стабильное бесплатное API
-            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentUrl)}`;
-            overlay.classList.add('active');
-        });
-
-        document.getElementById('modal-close').addEventListener('click', () => overlay.classList.remove('active'));
-        overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('active'); });
-
-        // Копирование ссылки
-        const copyBtn = document.getElementById('copy-btn');
-        copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                copyBtn.innerText = i18n[currentLang].copied;
-                copyBtn.style.background = 'var(--accent)';
-                copyBtn.style.color = '#000';
-                setTimeout(() => {
-                    copyBtn.innerText = i18n[currentLang].copy;
-                    copyBtn.style.background = 'var(--text)';
-                    copyBtn.style.color = 'var(--bg)';
-                }, 1500);
-            });
-        });
-
-        // Вспомогательные функции
-        function updateInterfaceText() {
-            const t = i18n[currentLang];
-            document.getElementById('lang-toggle').innerText = currentLang === 'en' ? 'RU' : 'EN';
-            document.getElementById('txt-title').innerText = t.title;
-            document.getElementById('txt-subtitle').innerText = t.subtitle;
-            document.getElementById('txt-board-title').innerText = t.boardTitle;
-            document.getElementById('txt-live').innerText = t.live;
-            document.getElementById('txt-qr-btn').innerText = t.share;
-            copyBtn.innerText = t.copy;
-            document.getElementById('modal-close').innerText = t.close;
+        // Установка даты окончания (ровно через 35 дней от ПЕРВОГО запуска сайта или фиксированная дата)
+        // Для теста поставим дату: текущее время + 35 дней. 
+        let targetDate = localStorage.getItem('enigma_target_date');
+        if (!targetDate) {
+            targetDate = new Date().getTime() + (35 * 24 * 60 * 60 * 1000);
+            localStorage.setItem('enigma_target_date', targetDate);
         }
 
-        function spawnFloatingText() {
-            const el = document.createElement('div');
-            el.classList.add('floating-score');
-            el.innerText = '+1';
-            el.style.left = (Math.random() * 60 + 70) + 'px';
-            el.style.top = (Math.random() * 40 + 40) + 'px';
-            portal.appendChild(el);
-            setTimeout(() => el.remove(), 400);
+        // --- ЛОГИКА ТАЙМЕРА ---
+        function updateTimer() {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference <= 0) {
+                document.getElementById('timer').innerText = "00:00:00:00";
+                document.getElementById('timer').classList.add('error');
+                clearInterval(timerInterval);
+                return;
+            }
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            // Форматирование (добавление нулей, если число меньше 10)
+            const d = days < 10 ? '0' + days : days;
+            const h = hours < 10 ? '0' + hours : hours;
+            const m = minutes < 10 ? '0' + minutes : minutes;
+            const s = seconds < 10 ? '0' + seconds : seconds;
+
+            document.getElementById('timer').innerText = `${d}:${h}:${m}:${s}`;
+        }
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // --- ВЫДАЧА УНИКАЛЬНОГО ФРАГМЕНТА ---
+        let userFragment = localStorage.getItem('enigma_user_fragment');
+        if (!userFragment) {
+            // Выбираем случайный фрагмент из пула
+            const randomIndex = Math.floor(Math.random() * FRAGMENTS_POOL.length);
+            userFragment = FRAGMENTS_POOL[randomIndex];
+            localStorage.setItem('enigma_user_fragment', userFragment);
+        }
+        document.getElementById('user-fragment').innerText = userFragment;
+
+        // --- ПРОВЕРКА ОТВЕТА ---
+        function checkSolution() {
+            const input = document.getElementById('solution').value.trim().toUpperCase();
+            const messageElement = document.getElementById('result-message');
+
+            if (input === SECRET_ANSWER) {
+                messageElement.className = "success";
+                messageElement.innerHTML = "ДОСТУП РАЗРЕШЕН. МИР СПАСЕН. <br> СЛЕДУЮЩИЙ ЭТАП СКОРО...";
+                // Тут можно перенаправить на секретную страницу или запустить салют
+            } else {
+                messageElement.className = "error";
+                messageElement.innerText = "ОШИБКА: НЕВЕРНЫЙ КЛЮЧ. ПОПРОБУЙТЕ СНОВА.";
+            }
         }
     </script>
 </body>
