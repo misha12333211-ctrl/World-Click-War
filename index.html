@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROJECT: ENIGMA 35</title>
@@ -74,21 +74,28 @@
         }
         .share-btn:hover { background: var(--accent-color); color: var(--bg-color); }
 
-        .input-group { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 35px; }
+        .input-sections-container {
+            display: flex; flex-direction: column; gap: 30px; margin-top: 35px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 30px;
+        }
+
+        .input-group { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .input-group label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        
         input[type="text"] {
             background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px; padding: 14px 20px; color: #ffffff; font-family: var(--font-mono);
+            border-radius: 6px; padding: 12px 20px; color: #ffffff; font-family: var(--font-mono);
             font-size: 1.1rem; text-align: center; width: 100%; max-width: 400px; text-transform: uppercase; outline: none;
         }
         input[type="text"]:focus { border-color: var(--accent-color); }
 
         button.action-btn {
             background: var(--accent-color); color: var(--bg-color); border: none; border-radius: 6px;
-            padding: 14px 40px; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; transition: all 0.2s;
+            padding: 12px 30px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; transition: all 0.2s; cursor: pointer;
         }
-        button.action-btn:hover { background: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }
+        button.action-btn:hover { background: #ffffff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
 
-        #result-message { margin-top: 15px; font-weight: 600; font-size: 0.9rem; min-height: 20px; }
+        .feedback-msg { font-weight: 600; font-size: 0.85rem; min-height: 18px; margin-top: 5px; }
         .error { color: var(--error-red); }
         .success { color: var(--accent-color); }
         .hidden { display: none !important; }
@@ -101,43 +108,30 @@
             transition: opacity 0.3s ease;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-
         .modal {
             background: var(--card-bg); padding: 30px; border-radius: 12px;
-            max-width: 400px; width: 90%; text-align: center;
-            border: 1px solid var(--accent-color);
-            box-shadow: 0 0 30px rgba(102, 252, 241, 0.2);
-            transform: scale(0.8); transition: transform 0.3s ease;
+            max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--accent-color);
+            box-shadow: 0 0 30px rgba(102, 252, 241, 0.2); transform: scale(0.8); transition: transform 0.3s ease;
         }
         .modal-overlay.active .modal { transform: scale(1); }
-
         .modal h2 { font-size: 1.3rem; margin-bottom: 20px; letter-spacing: 1px; color: var(--accent-color); }
-        
-        #qrcode {
-            background: white; padding: 15px; border-radius: 8px;
-            display: inline-block; margin-bottom: 20px;
-        }
+        #qrcode { background: white; padding: 15px; border-radius: 8px; display: inline-block; margin-bottom: 20px; }
         #qrcode img { display: block; margin: 0 auto; }
-
         .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
         .modal-btn {
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; padding: 12px; border-radius: 6px; font-weight: 600;
-            font-size: 0.9rem; transition: all 0.2s;
+            color: #fff; padding: 12px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;
         }
         .modal-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .close-modal { background: var(--accent-color); color: var(--bg-color); border: none; margin-top: 10px; }
-        .close-modal:hover { background: #fff; color: #000; }
-
+        
         #modal-toast { font-size: 0.85rem; margin-top: 10px; min-height: 18px; font-weight: 600; }
-
         .ascii-meme { font-size: 7px; line-height: 7px; white-space: pre; margin: 25px auto; display: inline-block; font-family: monospace; color: var(--accent-color); }
 
         @media (max-width: 600px) {
             h1 { font-size: 1.6rem; }
             #timer { font-size: 2.2rem; }
             #user-fragment { font-size: 2.4rem; }
-            .ascii-meme { font-size: 4px; line-height: 4px; }
         }
     </style>
 </head>
@@ -150,7 +144,7 @@
         <h1 id="s1-title">PROJECT: ENIGMA 35</h1>
         <p class="mission-text" id="s1-desc">
             Один человек не способен разгадать это. Истина разделена между всеми жителями Земли. 
-            Объединяйтесь, делитесь фрагментами и введите финальный ключ до того, как таймер обнулится.
+            Объединяйтесь, делитесь фрагментами. Счетчик обновится только тогда, когда вы введете найденные фрагменты пазла других игроков.
         </p>
 
         <div class="stats-grid">
@@ -159,7 +153,7 @@
                 <div class="stat-lbl" id="lbl-online">ОНЛАЙН СЕЙЧАС</div>
             </div>
             <div class="stat-box">
-                <div class="stat-val" id="live-progress">1 / 28</div>
+                <div class="stat-val" id="live-progress">0 / 28</div>
                 <div class="stat-lbl" id="lbl-progress">НАЙДЕНО СИМВОЛОВ</div>
             </div>
         </div>
@@ -173,11 +167,22 @@
             <button class="share-btn" onclick="openShareModal()" id="s1-share-btn">Поделиться сайтом</button>
         </div>
 
-        <div class="input-group">
-            <label for="solution" id="s1-input-label">ВВЕДИТЕ НАЙДЕННЫЙ МИРОВОЙ КЛЮЧ:</label>
-            <input type="text" id="solution" placeholder="..." autocomplete="off">
-            <button class="action-btn" onclick="checkStage1()" id="s1-btn">Проверить ключ</button>
-            <div id="result-message"></div>
+        <div class="input-sections-container">
+            <!-- ДЛЯ ОДНОГО ФРАГМЕНТА -->
+            <div class="input-group">
+                <label for="fragment-input" id="s1-frag-input-lbl">ВНЕСТИ НАЙДЕННЫЙ ФРАГМЕНТ ПАЗЛА (например: T-1):</label>
+                <input type="text" id="fragment-input" placeholder="X-00" autocomplete="off">
+                <button class="action-btn" onclick="submitFragment()" id="s1-frag-btn">Отправить фрагмент</button>
+                <div id="frag-message" class="feedback-msg"></div>
+            </div>
+
+            <!-- ДЛЯ ФИНАЛЬНОГО ОТВЕТА -->
+            <div class="input-group">
+                <label for="solution" id="s1-input-label">ВВЕДИТЕ НАЙДЕННЫЙ МИРОВОЙ КЛЮЧ:</label>
+                <input type="text" id="solution" placeholder="..." autocomplete="off">
+                <button class="action-btn" onclick="checkStage1()" id="s1-btn">Проверить ключ</button>
+                <div id="result-message" class="feedback-msg"></div>
+            </div>
         </div>
     </div>
 
@@ -219,13 +224,11 @@
         <p id="s3-desc" style="font-size: 1.1rem; line-height: 1.8; color: var(--text-muted);">Вы полностью прошли Enigma 35! Ожидайте Глобального Обновления Сети...</p>
     </div>
 
-    <!-- ОКНО ПОДЕЛИТЬСЯ (МОДАЛКА) -->
+    <!-- ОКНО ПОДЕЛИТЬСЯ -->
     <div class="modal-overlay" id="share-modal" onclick="closeShareModal(event)">
         <div class="modal" onclick="event.stopPropagation()">
             <h2 id="m-title">SHARE DATA / ПОДЕЛИТЬСЯ СЕЙЧАС</h2>
-            
             <div id="qrcode"></div>
-
             <div class="modal-buttons">
                 <button class="modal-btn" onclick="copyOnlyLink()" id="m-btn-link">Скопировать ссылку на сайт</button>
                 <button class="modal-btn" onclick="copyFullCipher()" id="m-btn-all">Скопировать ссылку + Мой фрагмент</button>
@@ -235,7 +238,6 @@
         </div>
     </div>
 
-    <!-- СКРИПТЫ: FIREBASE И QR -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -271,51 +273,61 @@
         const translations = {
             RU: {
                 s1Title: "PROJECT: ENIGMA 35",
-                s1Desc: "Один человек не способен разгадать это. Истина разделена между всеми жителями Земли. Объединяйтесь, делитесь фрагментами и введите финальный ключ до того, как таймер обнулится.",
+                s1Desc: "Один человек не способен разгадать это. Истина разделена между всеми жителями Земли. Объединяйтесь, делитесь фрагментами. Счетчик обновится только тогда, когда вы введете найденные фрагменты пазла других игроков.",
                 s1TimerLabel: "ВРЕМЯ ДО ИСХОДА",
                 s1FragLabel: "Ваш уникальный фрагмент пазла:",
+                s1FragInputLbl: "ВНЕСТИ НАЙДЕННЫЙ ФРАГМЕНТ ПАЗЛА (например: T-1):",
+                s1FragBtn: "Отправить фрагмент",
                 s1InputLabel: "ВВЕДИТЕ НАЙДЕННЫЙ МИРОВОЙ КЛЮЧ:",
                 s1Btn: "Проверить ключ",
                 s1ShareBtn: "Поделиться сайтом",
                 lblOnline: "ОНЛАЙН СЕЙЧАС",
                 lblProgress: "НАЙДЕНО СИМВОЛОВ",
                 errWrong: "ОШИБКА: НЕВЕРНЫЙ КЛЮЧ. СИСТЕМА ЗАБЛОКИРОВАНА.",
+                fragInvalid: "ОШИБКА: Данного фрагмента не существует.",
+                fragSuccess: "УСПЕХ: Новая деталь пазла добавлена в мировую базу!",
+                fragExists: "ВНИМАНИЕ: Этот фрагмент уже был добавлен ранее.",
                 s2Title: "STAGE 2 / ЭТАП 2",
                 s2Desc: "Первый уровень защиты пал. Вы доказали силу коллективного разума. Теперь проверим твои личные навыки.",
                 s2Hint: "Загляни в исходный код страницы (F12), найди параметр 'SECRET_BACKDOOR' и введи его сюда.",
                 s2Btn: "Взломать терминал",
                 s3Title: "ДОСТУП ПОЛУЧЕН",
-                s3Desc: "Вы полностью прошли Enigma 35! Ожидайте Глобального Обновления Сети в следующем цикле...",
+                s3Desc: "Вы полностью прошли Enigma 35! Ожидайте Глобального Обновления Сети...",
                 mTitle: "ПОДЕЛИТЬСЯ КВЕСТОМ",
                 mBtnLink: "Скопировать ссылку на сайт",
                 mBtnAll: "Скопировать ссылку + Мой фрагмент",
                 mBtnClose: "Закрыть",
-                copiedLink: "Ссылка скопирована в буфер!",
-                copiedAll: "Весь шифр скопирован! Отправляй друзьям!"
+                copiedLink: "Ссылка скопирована!",
+                copiedAll: "Весь шифр скопирован!"
             },
             EN: {
                 s1Title: "PROJECT: ENIGMA 35",
-                s1Desc: "One person cannot solve this alone. The truth is divided among all inhabitants of Earth. Unite into communities, share your clues, and input the final key before the timer hits zero.",
+                s1Desc: "One person cannot solve this alone. The truth is divided among all inhabitants of Earth. Unite, share your pieces. The progress counter will only tick up when you manually input other players' fragments.",
                 s1TimerLabel: "TIME REMAINING",
                 s1FragLabel: "Your unique puzzle fragment:",
+                s1FragInputLbl: "SUBMIT A FOUND PUZZLE FRAGMENT (e.g., T-1):",
+                s1FragBtn: "Submit Piece",
                 s1InputLabel: "ENTER THE GLOBAL KEY:",
                 s1Btn: "Verify Key",
                 s1ShareBtn: "Share Project",
                 lblOnline: "ONLINE NOW",
                 lblProgress: "FRAGMENTS FOUND",
                 errWrong: "ERROR: INVALID KEY. ACCESS DENIED.",
+                fragInvalid: "ERROR: This fragment code does not exist.",
+                fragSuccess: "SUCCESS: New puzzle piece locked into the global matrix!",
+                fragExists: "NOTICE: This fragment has already been registered.",
                 s2Title: "STAGE 2 / LEVEL 2",
-                s2Desc: "Congratulations! The first layer of defense has fallen. You have proven the power of collective intelligence.",
-                s2Hint: "Look 'under the hood' (View Source Code via F12), find the hidden variable 'SECRET_BACKDOOR' and type it here.",
+                s2Desc: "Congratulations! The first layer of defense has fallen.",
+                s2Hint: "Look 'under the hood' (F12), find 'SECRET_BACKDOOR' and type it here.",
                 s2Btn: "Bypass Terminal",
                 s3Title: "SYSTEM UNLOCKED",
-                s3Desc: "You have completely bypassed Enigma 35! A awaiting Global Network Update in the next cycle...",
+                s3Desc: "You have completely bypassed Enigma 35!",
                 mTitle: "SHARE ENIGMA 35",
                 mBtnLink: "Copy Website URL",
                 mBtnAll: "Copy URL + My Fragment",
                 mBtnClose: "Close",
-                copiedLink: "URL copied to clipboard!",
-                copiedAll: "Full cipher data copied to clipboard!"
+                copiedLink: "URL copied!",
+                copiedAll: "Cipher data copied!"
             }
         };
 
@@ -327,6 +339,8 @@
             document.getElementById('s1-desc').innerText = t.s1Desc;
             document.getElementById('s1-timer-label').innerText = t.s1TimerLabel;
             document.getElementById('s1-frag-label').innerText = t.s1FragLabel;
+            document.getElementById('s1-frag-input-lbl').innerText = t.s1FragInputLbl;
+            document.getElementById('s1-frag-btn').innerText = t.s1FragBtn;
             document.getElementById('s1-input-label').innerText = t.s1InputLabel;
             document.getElementById('s1-btn').innerText = t.s1Btn;
             document.getElementById('s1-share-btn').innerText = t.s1ShareBtn;
@@ -353,7 +367,39 @@
         }
         document.getElementById('user-fragment').innerText = userFragment;
 
-        // --- ЛОГИКА ОКНА ПОДЕЛИТЬСЯ И QR КОДА ---
+        // --- МЕХАНИКА ВВОДА И ПРОВЕРКИ ФРАГМЕНТОВ ---
+        function submitFragment() {
+            const inputField = document.getElementById('fragment-input');
+            const msgBlock = document.getElementById('frag-message');
+            const value = inputField.value.trim().toUpperCase();
+
+            if (!FRAGMENTS_POOL.includes(value)) {
+                msgBlock.className = "feedback-msg error";
+                msgBlock.innerText = translations[currentLang].fragInvalid;
+                return;
+            }
+
+            if (db) {
+                const ref = db.ref(`found_fragments/${value}`);
+                ref.once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        msgBlock.className = "feedback-msg error";
+                        msgBlock.innerText = translations[currentLang].fragExists;
+                    } else {
+                        ref.set(true).then(() => {
+                            msgBlock.className = "feedback-msg success";
+                            msgBlock.innerText = translations[currentLang].fragSuccess;
+                            inputField.value = "";
+                        });
+                    }
+                });
+            } else {
+                msgBlock.className = "feedback-msg success";
+                msgBlock.innerText = translations[currentLang].fragSuccess + " (Offline Mode)";
+            }
+        }
+
+        // --- ЛОГИКА ОКНА ПОДЕЛИТЬСЯ ---
         let qrGenerated = false;
         function openShareModal() {
             document.getElementById('share-modal').classList.add('active');
@@ -369,32 +415,21 @@
                 qrGenerated = true;
             }
         }
-
-        function closeShareModal(e) {
-            document.getElementById('share-modal').classList.remove('active');
-        }
-
+        function closeShareModal(e) { document.getElementById('share-modal').classList.remove('active'); }
         function showModalToast(text, status) {
             const toast = document.getElementById('modal-toast');
-            toast.innerText = text;
-            toast.className = status;
+            toast.innerText = text; toast.className = status;
             setTimeout(() => { toast.innerText = ""; }, 3000);
         }
-
         function copyOnlyLink() {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                showModalToast(translations[currentLang].copiedLink, "success");
-            });
+            navigator.clipboard.writeText(window.location.href).then(() => { showModalToast(translations[currentLang].copiedLink, "success"); });
         }
-
         function copyFullCipher() {
-            const shareText = `[PROJECT: ENIGMA 35]\n🌍 Мой фрагмент мирового шифра: { ${userFragment} }\n🔑 Объедини его со своим, чтобы взломать систему: ${window.location.href}`;
-            navigator.clipboard.writeText(shareText).then(() => {
-                showModalToast(translations[currentLang].copiedAll, "success");
-            });
+            const shareText = `[PROJECT: ENIGMA 35]\n🌍 Мой фрагмент мирового шифра: { ${userFragment} }\n🔑 Внеси его в терминал, чтобы продвинуть прогресс: ${window.location.href}`;
+            navigator.clipboard.writeText(shareText).then(() => { showModalToast(translations[currentLang].copiedAll, "success"); });
         }
 
-        // --- РАБОТА С РЕАЛЬНОЙ СТАТИСТИКОЙ (FIREBASE) ---
+        // --- СИНХРОНИЗАЦИЯ С FIREBASE ---
         if(db) {
             const onlineRef = db.ref('.info/connected');
             const myPresenceRef = db.ref('presence/').push();
@@ -407,17 +442,15 @@
             db.ref('presence/').on('value', (snap) => {
                 document.getElementById('live-online').innerText = snap.numChildren() || 1;
             });
-            db.ref(`found_fragments/${userFragment}`).set(true);
+            
+            // Автоматическую отправку своего кода убрали! Теперь только ручной трекинг базы:
             db.ref('found_fragments/').on('value', (snap) => {
-                const totalFound = snap.numChildren() || 1;
+                const totalFound = snap.numChildren() || 0;
                 document.getElementById('live-progress').innerText = `${totalFound} / 28`;
             });
-        } else {
-            document.getElementById('live-online').innerText = Math.floor(Math.random() * 5) + 1;
-            document.getElementById('live-progress').innerText = "1 / 28";
         }
 
-        // --- ЛОГИКА ТАЙМЕРА (Сброшен на v5) ---
+        // --- ЛОГИКА ТАЙМЕРА ---
         let targetDate = localStorage.getItem('enigma_target_date_v5');
         if (!targetDate) {
             targetDate = new Date().getTime() + (35 * 24 * 60 * 60 * 1000);
@@ -437,14 +470,14 @@
         // --- ПРОВЕРКИ КЛЮЧЕЙ ---
         function checkStage1() {
             if (document.getElementById('solution').value.trim().toUpperCase() === SECRET_ANSWER) {
-                document.getElementById('result-message').className = "success";
+                document.getElementById('result-message').className = "feedback-msg success";
                 document.getElementById('result-message').innerText = "ACCESS GRANTED.";
                 setTimeout(() => {
                     document.getElementById('stage1').classList.add('hidden');
                     document.getElementById('stage2').classList.remove('hidden');
                 }, 1000);
             } else {
-                document.getElementById('result-message').className = "error";
+                document.getElementById('result-message').className = "feedback-msg error";
                 document.getElementById('result-message').innerText = translations[currentLang].errWrong;
             }
         }
@@ -453,7 +486,7 @@
                 document.getElementById('stage2').classList.add('hidden');
                 document.getElementById('stage3').classList.remove('hidden');
             } else {
-                document.getElementById('stage2-message').className = "error";
+                document.getElementById('stage2-message').className = "feedback-msg error";
                 document.getElementById('stage2-message').innerText = currentLang === 'RU' ? "КОД СБОЯ. ДОСТУП ПРЕСЕЧЕН." : "DECRYPTION FAILED. ACCESS DENIED.";
             }
         }
