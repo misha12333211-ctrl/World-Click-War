@@ -6,7 +6,7 @@
     <title>PROJECT: ENIGMA 35</title>
     <meta name="google-site-verification" content="2xZMBnA29aqD7r3opSyC69iCzKHz7V0FdvNUrZmzAtE" />
     
-    <meta name="description" content="PROJECT: ENIGMA 35 — global cooperative ARG quest. The timer is ticking. 28 fragments are divided among the inhabitants of Earth. Unite to find the key.">
+    <meta name="description" content="PROJECT: ENIGMA 35 — global cooperative ARG quest. The timer is ticking. 15 fragments are divided among the inhabitants of Earth. Unite to find the key.">
     <meta name="keywords" content="enigma 35, online quest, arg game, cipher, puzzle, cooperative game">
     <meta property="og:title" content="PROJECT: ENIGMA 35">
     <meta property="og:description" content="Can you find your piece of the global puzzle? Time is running out.">
@@ -33,7 +33,12 @@
             --font-mono: 'JetBrains Mono', monospace;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent; /* Убирает синий силуэт при тапе на мобилках */
+        }
 
         body {
             background-color: var(--bg-color);
@@ -50,6 +55,11 @@
             padding: 24px;
             position: relative;
             overflow-x: hidden;
+        }
+
+        /* Глобальное исправление для всех кнопок: убираем синюю обводку фокуса */
+        button:focus, input:focus {
+            outline: none !important;
         }
 
         .lang-switcher {
@@ -244,6 +254,27 @@
         #modal-toast { font-size: 0.8rem; margin-top: 12px; min-height: 18px; font-weight: 600; font-family: var(--font-mono); }
         .ascii-meme { font-size: 10px; line-height: 11px; white-space: pre; margin: 25px auto; display: inline-block; font-family: var(--font-mono); color: var(--accent-color); text-shadow: 0 0 8px var(--accent-glow); }
 
+        .coming-soon-badge {
+            display: inline-block;
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent-color);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 20px;
+            letter-spacing: 1px;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.2); }
+            50% { opacity: 1; box-shadow: 0 0 15px 4px rgba(0, 242, 254, 0.4); }
+            100% { opacity: 0.6; box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.2); }
+        }
+
         @media (max-width: 600px) {
             h1 { font-size: 1.8rem; }
             h2 { font-size: 1.3rem; }
@@ -273,7 +304,7 @@
                 <div class="stat-lbl" id="lbl-online">ONLINE NOW</div>
             </div>
             <div class="stat-box">
-                <div class="stat-val" id="live-progress">0 / 28</div>
+                <div class="stat-val" id="live-progress">0 / 15</div>
                 <div class="stat-lbl" id="lbl-progress">FRAGMENTS FOUND</div>
             </div>
         </div>
@@ -310,9 +341,9 @@
         </div>
     </div>
 
-    <div class="container hidden" id="stage2">
+    <div class="container hidden" id="stage2" style="opacity: 0;">
         <h2 id="lbl-stage2-title">STAGE 2 / LEVEL 2</h2>
-        <p class="mission-text" id="text-stage2-mission">Congratulations! The first layer of defense has fallen. You have proven the power of collective intelligence.</p>
+        <p class="mission-text" id="text-stage2-mission">Congratulations! The first layer of defense has fallen.</p>
         
         <div class="ascii-meme">
                  .--------.
@@ -330,18 +361,20 @@
         LEVEL 2: ENCRYPTED CORE RECOVERY
         </div>
 
-        <p style="font-size: 0.85rem; font-style: italic; color: var(--text-muted); margin-bottom: 25px;" id="text-stage2-hint">Look 'under the hood' (F12). The backdoor code is protected by irreversible hashing algorithms.</p>
+        <div id="text-stage2-hint" style="font-size: 0.85rem; color: var(--accent-color); margin-top: -15px; margin-bottom: 25px; font-family: var(--font-mono); line-height: 1.5; text-shadow: 0 0 8px var(--accent-glow);"></div>
 
         <div class="input-group">
+            <label for="stage2-input" id="lbl-stage2-input-hint">ENTER THE SECOND GLOBAL KEY TO DECRYPT THE SYSTEM CORE:</label>
             <input type="text" id="stage2-input" placeholder="ACCESS_CODE..." autocomplete="off">
             <button class="action-btn" id="btn-stage2-submit" onclick="checkStage2()">Bypass Terminal</button>
             <div id="stage2-message" class="feedback-msg"></div>
         </div>
     </div>
 
-    <div class="container hidden" id="stage3">
+    <div class="container hidden" id="stage3" style="opacity: 0;">
         <h2 id="lbl-stage3-title">SYSTEM UNLOCKED</h2>
-        <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-muted);" id="text-stage3-mission">You have completely bypassed Enigma 35! Awaiting Global Network Update in the next cycle...</p>
+        <p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-muted);" id="text-stage3-mission">You have completely bypassed Enigma 35! Awaiting Global Network Update in the next cycle...</p>
+        <div class="coming-soon-badge" id="badge-coming-soon">STAGE 3: COMING SOON</div>
     </div>
 
     <div class="footer">
@@ -384,7 +417,7 @@
             db = firebase.database();
         }
 
-        // КРИПТОГРАФИЧЕСКАЯ ФУНКЦИЯ ХЭШИРОВАНИЯ (SHA-256)
+        // SHA-256 HASH FUNCTION
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);                    
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -392,18 +425,13 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        const FRAGMENT_CHARS = {
-            1:"T", 2:"H", 3:"E", 4:"M", 5:"A", 6:"T", 7:"R", 8:"I", 9:"X", 10:"H", 
-            11:"A", 12:"S", 13:"Y", 14:"O", 15:"U", 16:"F", 17:"O", 18:"L", 19:"L", 
-            20:"O", 21:"W", 22:"T", 23:"H", 24:"E", 25:"W", 26:"H", 27:"I", 28:"T"
-        };
+        // Скрытая через Base64 структура букв. Для F12 это просто набор символов.
+        const FRAGMENT_CHARS = JSON.parse(atob("eyIxIjoiVCIsIjIiOiJIIiwiMyI6IkUiLCI0IjoiTSIsIjUiOiJBIiwiNiI6IlQiLCI3IjoiUiIsIjgiOiJJIiwiOSI6IlgiLCIxMCI6IkgiLCIxMSI6IkEiLCIxMiI6IlMiLCIxMyI6IlkiLCIxNCI6Ik8iLCIxNSI6IlUifQ=="));
 
-        // Захэшированные секреты
-        const HASH_ANSWER = "6fa94cb149177114cf3957eb1f0cf85fb4a45763bf45d4c20573e04cf4fa9960";    // THEMATRIXHASYOU
-        const HASH_BACKDOOR = "a69485b0cb5ee11603ba78028f895cd4e2b02787fc3880536c4b2b2fa84d2bd9";  // FOLLOWTHEWHITERABBIT
+        const HASH_ANSWER = "b8de97f4752f353ae8f18bc20afff94c16fec87a230d14aead8572287c2f196c";    // THEMATRIXHASYOU
+        const HASH_BACKDOOR = "c4c369b370cbe591ba7021523ebf3848d4b4eeb5b386036363a53d6dac5edd7f";  // ENCRYPTEDCORERECOVERY
 
-        // --- MULTILANGUAGE DICTIONARY ---
-        let currentLang = localStorage.getItem('enigma_lang') || 'en';
+        let currentLang = localStorage.getItem('enigma_lang_v7') || 'en';
         let isGlobalAlertActive = false;
         
         const translations = {
@@ -436,11 +464,13 @@
                 stage1Error: "ERROR: INVALID KEY. ACCESS DENIED.",
                 stage2Title: "STAGE 2 / LEVEL 2",
                 stage2Mission: "Congratulations! The first layer of defense has fallen. You have proven the power of collective intelligence.",
-                stage2Hint: "Look 'under the hood' (F12). The backdoor code is protected by irreversible hashing algorithms.",
+                stage2Hint: "SYSTEM NOTE: Core bypass protocol initiated. The decryption key is written right before your eyes. What are you recovering? (Enter in English, no spaces)",
+                stage2InputHint: "ENTER THE SECOND GLOBAL KEY TO DECRYPT THE SYSTEM CORE:",
                 stage2Btn: "Bypass Terminal",
                 stage2Error: "DECRYPTION FAILED. ACCESS DENIED.",
                 stage3Title: "SYSTEM UNLOCKED",
-                stage3Mission: "You have completely bypassed Enigma 35! Awaiting Global Network Update in the next cycle...",
+                stage3Mission: "Stage 2 has been successfully completed! You have fully synchronized the core. The next sector of the system will be available soon.",
+                stage3Badge: "STAGE 3: COMING SOON",
                 shareTextTemplate: (frag, url) => `[PROJECT: ENIGMA 35]\n🌍 My cipher fragment: { ${frag} }\n🔑 Input it here to decrypt the system matrix: ${url}`
             },
             ru: {
@@ -472,11 +502,13 @@
                 stage1Error: "ОШИБКА: НЕВЕРНЫЙ КЛЮЧ. В ДОСТУПЕ ОТКАЗАНО.",
                 stage2Title: "ЭТАП 2 / УРОВЕНЬ 2",
                 stage2Mission: "Поздравляем! Первый рубеж обороны пройден. Вы доказали силу коллективного разума.",
-                stage2Hint: "Загляните «под капот» (F12). Код бэкдора защищен необратимыми алгоритмами хэширования.",
+                stage2Hint: "СИСТЕМНОЕ УВЕДОМЛЕНИЕ: Протокол обхода ядра запущен. Ключ расшифровки написан прямо перед вашими глазами. Что именно вы восстанавливаете? (Вводить на английском, без пробелов)",
+                stage2InputHint: "ВВЕДИТЕ ВТОРОЙ ГЛОБАЛЬНЫЙ КЛЮЧ ДЛЯ РАСШИФРОВКИ ЯДРА:",
                 stage2Btn: "Взломать терминал",
                 stage2Error: "СБОЙ ДЕШИФРОВАНИЯ. В ДОСТУПЕ ОТКАЗАНО.",
                 stage3Title: "СИСТЕМА РАЗБЛОКИРОВАНА",
-                stage3Mission: "Вы полностью взломали систему Enigma 35! Ожидайте обновления глобальной сети в следующем цикле...",
+                stage3Mission: "Второй этап успешно пройден! Вы полностью синхронизировали центральное ядро. Следующий сектор системы будет доступен совсем скоро.",
+                stage3Badge: "ЭТАП 3: СКОРО В ИГРЕ",
                 shareTextTemplate: (frag, url) => `[PROJECT: ENIGMA 35]\n🌍 Мой фрагмент шифра: { ${frag} }\n🔑 Введите его на сайте для дешифровки системы: ${url}`
             }
         };
@@ -499,7 +531,7 @@
 
         function setLanguage(lang) {
             currentLang = lang;
-            localStorage.setItem('enigma_lang', lang);
+            localStorage.setItem('enigma_lang_v7', lang);
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
             document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
             
@@ -524,11 +556,14 @@
             document.getElementById('lbl-stage2-title').innerText = t.stage2Title;
             document.getElementById('text-stage2-mission').innerText = t.stage2Mission;
             document.getElementById('text-stage2-hint').innerText = t.stage2Hint;
+            document.getElementById('lbl-stage2-input-hint').innerText = t.stage2InputHint;
             document.getElementById('btn-stage2-submit').innerText = t.stage2Btn;
+            
             document.getElementById('lbl-stage3-title').innerText = t.stage3Title;
             document.getElementById('text-stage3-mission').innerText = t.stage3Mission;
+            document.getElementById('badge-coming-soon').innerText = t.stage3Badge;
 
-            const isLiked = localStorage.getItem('enigma_liked_v5');
+            const isLiked = localStorage.getItem('enigma_liked_v7');
             document.getElementById('like-btn-text').innerText = isLiked ? t.likedBtn : t.likeBtn;
             
             document.getElementById('frag-message').innerText = "";
@@ -537,13 +572,13 @@
         }
 
         // --- UNIQUE FRAGMENT ASSIGNMENT ---
-        let userFragment = localStorage.getItem('enigma_user_fragment_v5');
+        let userFragment = localStorage.getItem('enigma_user_fragment_v7');
         if (!userFragment) {
             const keys = Object.keys(FRAGMENT_CHARS);
             const randomId = keys[Math.floor(Math.random() * keys.length)];
             const char = FRAGMENT_CHARS[randomId];
             userFragment = `${char}-${randomId}`;
-            localStorage.setItem('enigma_user_fragment_v5', userFragment);
+            localStorage.setItem('enigma_user_fragment_v7', userFragment);
         }
         document.getElementById('user-fragment').innerText = userFragment;
 
@@ -565,7 +600,7 @@
             }
 
             const inputChar = parts[0];
-            const inputId = parseInt(parts[1], 10);
+            const inputId = parts[1]; // оставляем как строку, так как в JSON ключи строковые
 
             if (!FRAGMENT_CHARS[inputId] || FRAGMENT_CHARS[inputId] !== inputChar) {
                 msgBlock.className = "feedback-msg error";
@@ -596,7 +631,7 @@
         function handleLike() {
             const btn = document.getElementById('like-button');
             const t = translations[currentLang];
-            if (localStorage.getItem('enigma_liked_v5')) return; 
+            if (localStorage.getItem('enigma_liked_v7')) return; 
 
             if (db) {
                 const likeRef = db.ref('likes_count');
@@ -604,14 +639,14 @@
                     return (currentValue || 0) + 1;
                 }, (error, committed, snapshot) => {
                     if (committed) {
-                        localStorage.setItem('enigma_liked_v5', 'true');
+                        localStorage.setItem('enigma_liked_v7', 'true');
                         btn.classList.add('liked');
                         document.getElementById('like-btn-text').innerText = t.likedBtn;
                         document.getElementById('like-count').innerText = snapshot.val();
                     }
                 });
             } else {
-                localStorage.setItem('enigma_liked_v5', 'true');
+                localStorage.setItem('enigma_liked_v7', 'true');
                 btn.classList.add('liked');
                 document.getElementById('like-count').innerText = "1";
                 document.getElementById('like-btn-text').innerText = t.likedBtn;
@@ -637,7 +672,7 @@
         
         function showModalToast(text, status) {
             const toast = document.getElementById('modal-toast');
-            toast.innerText = text; toast.className = toast.className = "feedback-msg " + status;
+            toast.innerText = text; toast.className = "feedback-msg " + status;
             setTimeout(() => { toast.innerText = ""; }, 3000);
         }
         function copyOnlyLink() {
@@ -666,9 +701,9 @@
             
             db.ref('found_fragments/').on('value', (snap) => {
                 const totalFound = snap.numChildren() || 0;
-                document.getElementById('live-progress').innerText = `${totalFound} / 28`;
+                document.getElementById('live-progress').innerText = `${totalFound} / 15`;
                 
-                if (totalFound >= 28) {
+                if (totalFound >= 15) {
                     if (!isGlobalAlertActive) {
                         isGlobalAlertActive = true;
                         applyMissionText(translations[currentLang]);
@@ -686,7 +721,7 @@
             });
         }
 
-        if (localStorage.getItem('enigma_liked_v5')) {
+        if (localStorage.getItem('enigma_liked_v7')) {
             document.getElementById('like-button').classList.add('liked');
         }
 
@@ -713,7 +748,6 @@
             const userInput = document.getElementById('solution').value.replace(/\s+/g, '').toUpperCase();
             const userHash = await sha256(userInput);
 
-            // Исправлена критическая опечатка HUSH_ANSWER -> HASH_ANSWER
             if (userHash === HASH_ANSWER) {
                 document.getElementById('result-message').className = "feedback-msg success";
                 document.getElementById('result-message').innerText = t.stage1Success;
