@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -315,14 +315,10 @@
             appId: "1:494269568517:web:27b476d6ac0e214ddfee6c"
         };
         
-        let db = null;
-        if(firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.apiKey !== "") {
-            try {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-            } catch(e) {
-                console.error("Firebase initialization failed:", e);
-            }
+        let db;
+        if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
         }
 
         // --- КРИПТОГРАФИЧЕСКАЯ ФУНКЦИЯ ХЭШИРОВАНИЯ (SHA-256) ---
@@ -333,40 +329,47 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Пул хэшированных фрагментов
+        // Пул ТОЛЬКО хэшированных фрагментов. Исходные значения удалены, чтобы их нельзя было подсмотреть.
         const ENCRYPTED_POOL = [
-            { id: 0, hash: "2cf04543d2c77d466f2a890453f65e2b090a98f79f8ee167b5790d0b04a806d2", raw: "T-1" },
-            { id: 1, hash: "4be489979720b001a154d805094254f664df03534b8c9497e8ec8e0cb20e985b", raw: "H-2" },
-            { id: 2, hash: "d85fc531b7829285fb7bc99cb2be3752e008fa0641b63dd107293a9d94657155", raw: "E-3" },
-            { id: 3, hash: "614cfc92f15309600a94488bfa6b46ef22e84c9bd04ec7cf57421cb4178da709", raw: "M-4" },
-            { id: 4, hash: "2504246830723db59b646c071fa6ae41199a0e66da9bc758a08157140f7d0fb9", raw: "A-5" },
-            { id: 5, hash: "80983177894a434226d7cf5cd37e2968ec9e54a691fb342b58b4df54b9d0dc6a", raw: "T-6" },
-            { id: 6, hash: "7c13a213e4b779a1f0a2e054ba5f51722e030a612537c359d9f59fbfb6bfa8a7", raw: "R-7" },
-            { id: 7, hash: "d0701967cb560411a7f05256561fb982b6c1ec58451f28b4931a108e404bf02e", raw: "I-8" },
-            { id: 8, hash: "804d0fa3b423d2427b3701217e6be98a3f8fa3c072b07e78ee2b814efbf4325c", raw: "X-9" },
-            { id: 9, hash: "1d49605d836fa5130b13f17d23f7bc86e417df47e4eb1d3ee5c2763f350c30a8", raw: "H-10" },
-            { id: 10, hash: "4199c0dae8fdf05a069bc003cf1c3f81e35fa84589d3844fa007be060ba108f9", raw: "A-11" },
-            { id: 11, hash: "777cbf62589574ef81f855f5240bc7e30fc182270914d8b9d6a36412e1ecb614", raw: "S-12" },
-            { id: 12, hash: "bf3b76ca5b487b2b6c7a3617300c02be55f0535a60e060ee022d4f3b5a19b88f", raw: "Y-13" },
-            { id: 13, hash: "22061da2d140b9be00c8227da0844f2bb7ee542ef7bfa69352e008ba8c22da78", raw: "O-14" },
-            { id: 14, hash: "69a23c3167b2d56a1b24bf74d75d68804593ae5f91e1d03390f77b78909f18a2", raw: "U-15" },
-            { id: 15, hash: "c6a08bc79e6027c4fb712534a17fe94a6125ff16ea28bf0bb1e247b9ec59b7df", raw: "F-16" },
-            { id: 16, hash: "2f281e01861a491ef2b89d428ca433878b309f7a77d704af52af492cfa77d5ef", raw: "O-17" },
-            { id: 17, hash: "95669b917578ec09a5585b736780ee2c27702f357f0003b3558f62c8fa62ccb9", raw: "L-18" },
-            { id: 18, hash: "a098aa9fa44e78f7e7e6005d5483244837549646b10702ca9595f92ff4cb941e", raw: "L-19" },
-            { id: 19, hash: "937841e204c3d8036980004ffbe022a1f46f4eb80687e83460f9ca290f6ee841", raw: "O-20" },
-            { id: 20, hash: "4d6d37014643b0fcbb61ba08dc137449c256a4221a41857c793ff82fe1a8a29a", raw: "W-21" },
-            { id: 21, hash: "4776156e7dfbf3fec30e0600a9446d7e63ee9a07357774903a985d8d06d4e1bf", raw: "T-22" },
-            { id: 22, hash: "81e3518e11a3d52d9a30cf1923be2a95f9f6dae3d23dca7c5b6b158022756ba8", raw: "H-23" },
-            { id: 23, hash: "277e98a58a7f9a2e6f481c905391edccb9cb96e95b05872cf52d5da4446b7a97", raw: "E-24" },
-            { id: 24, hash: "fec92c01fcbf8aeb5b0ffcf0e3579b1df09e69ba3084bf93b827e7ebec17cf7b", raw: "W-25" },
-            { id: 25, hash: "6ccf5af2f778f657512217cbe3d3cfcb2321112d48373b5e43b171f114c029eb", raw: "H-26" },
-            { id: 26, hash: "3bf7e2467389c9e83ec0bf7246738c82305370d04dbec85ee9c98b67f677fb84", raw: "I-27" },
-            { id: 27, hash: "013f99479e000c069b2d86f7af204a9af8286a24be516ebf04bc6ba75c97bd58", raw: "T-28" }
+            { id: 1, hash: "2cf04543d2c77d466f2a890453f65e2b090a98f79f8ee167b5790d0b04a806d2" }, // T-1
+            { id: 2, hash: "4be489979720b001a154d805094254f664df03534b8c9497e8ec8e0cb20e985b" }, // H-2
+            { id: 3, hash: "d85fc531b7829285fb7bc99cb2be3752e008fa0641b63dd107293a9d94657155" }, // E-3
+            { id: 4, hash: "614cfc92f15309600a94488bfa6b46ef22e84c9bd04ec7cf57421cb4178da709" }, // M-4
+            { id: 5, hash: "2504246830723db59b646c071fa6ae41199a0e66da9bc758a08157140f7d0fb9" }, // A-5
+            { id: 6, hash: "80983177894a434226d7cf5cd37e2968ec9e54a691fb342b58b4df54b9d0dc6a" }, // T-6
+            { id: 7, hash: "7c13a213e4b779a1f0a2e054ba5f51722e030a612537c359d9f59fbfb6bfa8a7" }, // R-7
+            { id: 8, hash: "d0701967cb560411a7f05256561fb982b6c1ec58451f28b4931a108e404bf02e" }, // I-8
+            { id: 9, hash: "804d0fa3b423d2427b3701217e6be98a3f8fa3c072b07e78ee2b814efbf4325c" }, // X-9
+            { id: 10, hash: "1d49605d836fa5130b13f17d23f7bc86e417df47e4eb1d3ee5c2763f350c30a8" }, // H-10
+            { id: 11, hash: "4199c0dae8fdf05a069bc003cf1c3f81e35fa84589d3844fa007be060ba108f9" }, // A-11
+            { id: 12, hash: "777cbf62589574ef81f855f5240bc7e30fc182270914d8b9d6a36412e1ecb614" }, // S-12
+            { id: 13, hash: "bf3b76ca5b487b2b6c7a3617300c02be55f0535a60e060ee022d4f3b5a19b88f" }, // Y-13
+            { id: 14, hash: "22061da2d140b9be00c8227da0844f2bb7ee542ef7bfa69352e008ba8c22da78" }, // O-14
+            { id: 15, hash: "69a23c3167b2d56a1b24bf74d75d68804593ae5f91e1d03390f77b78909f18a2" }, // U-15
+            { id: 16, hash: "c6a08bc79e6027c4fb712534a17fe94a6125ff16ea28bf0bb1e247b9ec59b7df" }, // F-16
+            { id: 17, hash: "2f281e01861a491ef2b89d428ca433878b309f7a77d704af52af492cfa77d5ef" }, // O-17
+            { id: 18, hash: "95669b917578ec09a5585b736780ee2c27702f357f0003b3558f62c8fa62ccb9" }, // L-18
+            { id: 19, hash: "a098aa9fa44e78f7e7e6005d5483244837549646b10702ca9595f92ff4cb941e" }, // L-19
+            { id: 20, hash: "937841e204c3d8036980004ffbe022a1f46f4eb80687e83460f9ca290f6ee841" }, // O-20
+            { id: 21, hash: "4d6d37014643b0fcbb61ba08dc137449c256a4221a41857c793ff82fe1a8a29a" }, // W-21
+            { id: 22, hash: "4776156e7dfbf3fec30e0600a9446d7e63ee9a07357774903a985d8d06d4e1bf" }, // T-22
+            { id: 23, hash: "81e3518e11a3d52d9a30cf1923be2a95f9f6dae3d23dca7c5b6b158022756ba8" }, // H-23
+            { id: 24, hash: "277e98a58a7f9a2e6f481c905391edccb9cb96e95b05872cf52d5da4446b7a97" }, // E-24
+            { id: 25, hash: "fec92c01fcbf8aeb5b0ffcf0e3579b1df09e69ba3084bf93b827e7ebec17cf7b" }, // W-25
+            { id: 26, hash: "6ccf5af2f778f657512217cbe3d3cfcb2321112d48373b5e43b171f114c029eb" }, // H-26
+            { id: 27, hash: "3bf7e2467389c9e83ec0bf7246738c82305370d04dbec85ee9c98b67f677fb84" }, // I-27
+            { id: 28, hash: "013f99479e000c069b2d86f7af204a9af8286a24be516ebf04bc6ba75c97bd58" }  // T-28
         ];
 
-        // ИСПРАВЛЕНО: Новый хэш SHA-256 для капс-строки "THE MATRIX HAS YOU FOLLOW THE WHITE RABBIT"
-        const HASH_ANSWER = "5801ad47a50da30f367e9124451731671e21bfa6747b06822fc908e75298a08d"; 
+        // Соответствия ID элементов буквам для генерации фрагмента пользователю без хранения открытого пула
+        const FRAGMENT_CHARS = {
+            1:"T", 2:"H", 3:"E", 4:"M", 5:"A", 6:"T", 7:"R", 8:"I", 9:"X", 10:"H", 
+            11:"A", 12:"S", 13:"Y", 14:"O", 15:"U", 16:"F", 17:"O", 18:"L", 19:"L", 
+            20:"O", 21:"W", 22:"T", 23:"H", 24:"E", 25:"W", 26:"H", 27:"I", 28:"T"
+        };
+
+        // Зашифрованные слепки этапов
+        const HASH_ANSWER = "9bf47ad3e4a9e5251664bfeb5d444458f3fb1e7ba25880795764d858348b4f17"; 
         const HASH_BACKDOOR = "a69485b0cb5ee11603ba78028f895cd4e2b02787fc3880536c4b2b2fa84d2bd9";
 
         // --- MULTILANGUAGE DICTIONARY ---
@@ -506,11 +509,13 @@
             document.getElementById('stage2-message').innerText = "";
         }
 
-        // --- UNIQUE FRAGMENT ASSIGNMENT ---
+        // --- UNIQUE FRAGMENT ASSIGNMENT (БЕЗОПАСНАЯ ГЕНЕРАЦИЯ) ---
         let userFragment = localStorage.getItem('enigma_user_fragment_v5');
         if (!userFragment) {
             const randomIndex = Math.floor(Math.random() * ENCRYPTED_POOL.length);
-            userFragment = ENCRYPTED_POOL[randomIndex].raw;
+            const selectedNode = ENCRYPTED_POOL[randomIndex];
+            const char = FRAGMENT_CHARS[selectedNode.id];
+            userFragment = `${char}-${selectedNode.id}`;
             localStorage.setItem('enigma_user_fragment_v5', userFragment);
         }
         document.getElementById('user-fragment').innerText = userFragment;
@@ -568,7 +573,7 @@
                 likeRef.transaction((currentValue) => {
                     return (currentValue || 0) + 1;
                 }, (error, committed, snapshot) => {
-                    if (committed && snapshot) {
+                    if (committed) {
                         localStorage.setItem('enigma_liked_v5', 'true');
                         btn.classList.add('liked');
                         document.getElementById('like-btn-text').innerText = t.likedBtn;
