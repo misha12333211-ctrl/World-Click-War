@@ -334,10 +334,12 @@
 
         // --- MULTILANGUAGE DICTIONARY ---
         let currentLang = localStorage.getItem('enigma_lang') || 'en';
+        let isGlobalAlertActive = false; // флаг, чтобы не перерисовывать DOM при каждом событии Firebase
         
         const translations = {
             en: {
                 mission: "One person cannot solve this alone. The truth is divided among all inhabitants of Earth. Unite, share your pieces. The progress counter will only tick up when you manually input other players' fragments.",
+                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ ALL FRAGMENTS FOUND! ⚠️</span>The matrix is fully open. Look at all the fragments in the comments, assemble them by numbers from 1 to 28 into a single English phrase, and enter the result in the <b>"ENTER THE GLOBAL KEY"</b> field below to unlock the next system phase!`,
                 online: "ONLINE NOW",
                 progress: "FRAGMENTS FOUND",
                 timerLbl: "TIME REMAINING",
@@ -374,6 +376,7 @@
             },
             ru: {
                 mission: "Один человек принципиально не сможет пройти этот квест. Истина разделена между жителями Земли. Объединяйтесь и делитесь своими частями. Глобальный счётчик прогресса сдвинется с места только тогда, когда Вы будете вручную вводить коды, полученные от других участников.",
+                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ ВСЕ ФРАГМЕНТЫ СОБРАНЫ! ⚠️</span>Истина полностью открыта. Посмотрите на все найденные фрагменты в комментариях, сложите их по номерам от 1 до 28 в единую фразу на английском языке и введите полученный результат в поле <b>«ВВЕСТИ ГЛОБАЛЬНЫЙ КЛЮЧ»</b> ниже, чтобы запустить следующий этап системы!`,
                 online: "СЕЙЧАС В СЕТИ",
                 progress: "НАЙДЕНО ФРАГМЕНТОВ",
                 timerLbl: "ВРЕМЕНИ ОСТАЛОСЬ",
@@ -410,17 +413,32 @@
             }
         };
 
+        function applyMissionText(t) {
+            const missionBlock = document.getElementById('text-mission');
+            if (isGlobalAlertActive) {
+                missionBlock.innerHTML = t.alertMission;
+                missionBlock.style.border = "1px solid #66fcf1";
+                missionBlock.style.padding = "15px";
+                missionBlock.style.borderRadius = "8px";
+                missionBlock.style.background = "rgba(102, 252, 241, 0.05)";
+            } else {
+                missionBlock.innerText = t.mission;
+                missionBlock.style.border = "none";
+                missionBlock.style.padding = "0";
+                missionBlock.style.background = "none";
+            }
+        }
+
         function setLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('enigma_lang', lang);
             
-            // Toggle active buttons
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
             document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
             
-            // Update Text Contents
             const t = translations[lang];
-            document.getElementById('text-mission').innerText = t.mission;
+            applyMissionText(t);
+            
             document.getElementById('lbl-online').innerText = t.online;
             document.getElementById('lbl-progress').innerText = t.progress;
             document.getElementById('lbl-timer').innerText = t.timerLbl;
@@ -436,7 +454,6 @@
             document.getElementById('btn-modal-full').innerText = t.modalFullBtn;
             document.getElementById('btn-modal-close').innerText = t.modalCloseBtn;
             
-            // Stage 2 & 3 update
             document.getElementById('lbl-stage2-title').innerText = t.stage2Title;
             document.getElementById('text-stage2-mission').innerText = t.stage2Mission;
             document.getElementById('text-stage2-hint').innerText = t.stage2Hint;
@@ -444,11 +461,9 @@
             document.getElementById('lbl-stage3-title').innerText = t.stage3Title;
             document.getElementById('text-stage3-mission').innerText = t.stage3Mission;
 
-            // Update like button text dynamically
             const isLiked = localStorage.getItem('enigma_liked_v5');
             document.getElementById('like-btn-text').innerText = isLiked ? t.likedBtn : t.likeBtn;
             
-            // Clear inputs feedback text to match updated language context
             document.getElementById('frag-message').innerText = "";
             document.getElementById('result-message').innerText = "";
             document.getElementById('stage2-message').innerText = "";
@@ -504,7 +519,7 @@
             }
         }
 
-        // --- LIKES LOGIC --
+        // --- LIKES LOGIC (W/ FIREBASE TRANSACTION) ---
         function handleLike() {
             const btn = document.getElementById('like-button');
             const t = translations[currentLang];
@@ -512,18 +527,18 @@
 
             if (db) {
                 const likeRef = db.ref('likes_count');
-                likeRef.once('value', (snapshot) => {
-                    let currentLikes = snapshot.val() || 0;
-                    let newLikes = currentLikes + 1;
-                    
-                    likeRef.set(newLikes).then(() => {
+                // Атомарная серверная транзакция Firebase: предотвращает баги кэша и перетирание данных
+                likeRef.transaction((currentValue) => {
+                    return (currentValue || 0) + 1;
+                }, (error, committed, snapshot) => {
+                    if (error) {
+                        console.error("Firebase Like Transaction Error: ", error);
+                    } else if (committed) {
                         localStorage.setItem('enigma_liked_v5', 'true');
                         btn.classList.add('liked');
                         document.getElementById('like-btn-text').innerText = t.likedBtn;
-                        document.getElementById('like-count').innerText = newLikes;
-                    }).catch((error) => {
-                        console.error("Firebase Like Error: ", error);
-                    });
+                        document.getElementById('like-count').innerText = snapshot.val();
+                    }
                 });
             } else {
                 localStorage.setItem('enigma_liked_v5', 'true');
@@ -532,7 +547,6 @@
                 document.getElementById('like-btn-text').innerText = t.likedBtn;
             }
         }
-
 
         let qrGenerated = false;
         function openShareModal() {
@@ -579,10 +593,25 @@
             db.ref('presence/').on('value', (snap) => {
                 document.getElementById('live-online').innerText = snap.numChildren() || 1;
             });
+            
+            // Отслеживание собранных фрагментов + Глобальное уведомление о финише
             db.ref('found_fragments/').on('value', (snap) => {
                 const totalFound = snap.numChildren() || 0;
                 document.getElementById('live-progress').innerText = `${totalFound} / 28`;
+                
+                if (totalFound >= 28) {
+                    if (!isGlobalAlertActive) {
+                        isGlobalAlertActive = true;
+                        applyMissionText(translations[currentLang]);
+                    }
+                } else {
+                    if (isGlobalAlertActive) {
+                        isGlobalAlertActive = false;
+                        applyMissionText(translations[currentLang]);
+                    }
+                }
             });
+            
             db.ref('likes_count').on('value', (snap) => {
                 document.getElementById('like-count').innerText = snap.val() || 0;
             });
