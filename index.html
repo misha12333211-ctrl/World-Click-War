@@ -12,7 +12,7 @@
     <meta property="og:description" content="Can you find your piece of the global puzzle? Time is running out.">
     <meta property="og:type" content="website">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2255%%22 font-size=%2280%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>🔒</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2255%%22 font-size=%2280%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>🔒</text></svg>">
 
     <style>
         :root {
@@ -193,7 +193,6 @@
 </head>
 <body>
 
-    <!-- Переключатель языков -->
     <div class="lang-switcher">
         <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">EN</button>
         <button class="lang-btn" id="btn-ru" onclick="setLanguage('ru')">RU</button>
@@ -323,8 +322,6 @@
             db = firebase.database();
         }
 
-        const SECRET_BACKDOOR = "NEO_WAS_HERE_2026";
-        const SECRET_ANSWER = "THE TRUTH IS HIDDEN IN PLAIN SIGHT"; 
         const FRAGMENTS_POOL = [
             "T-1", "H-2", "E-3", "T-4", "R-5", "U-6", "T-7", "H-8", 
             "I-9", "S-10", "H-11", "I-12", "D-13", "D-14", "E-15", "N-16",
@@ -332,14 +329,26 @@
             "S-24", "H-25", "G-26", "H-27", "T-28"
         ];
 
+        // --- КРИПТОГРАФИЧЕСКАЯ ФУНКЦИЯ ХЭШИРОВАНИЯ (SHA-256) ---
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);                    
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Вместо открытых строк — зашифрованные слепки SHA-256
+        const HASH_ANSWER = "6fbc79a7853b0a701982b6b06385d8868677c7bf170830cb85b0042a9b3c3b03"; 
+        const HASH_BACKDOOR = "a374945bfb41f71df464977457788da20063660a9203a95f9c47e7b514d0263f";
+
         // --- MULTILANGUAGE DICTIONARY ---
         let currentLang = localStorage.getItem('enigma_lang') || 'en';
-        let isGlobalAlertActive = false; // флаг, чтобы не перерисовывать DOM при каждом событии Firebase
+        let isGlobalAlertActive = false;
         
         const translations = {
             en: {
                 mission: "One person cannot solve this alone. The truth is divided among all inhabitants of Earth. Unite, share your pieces. The progress counter will only tick up when you manually input other players' fragments.",
-                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ALL FRAGMENTS FOUND!⚠️</span>The matrix is fully open. Look at all the fragments, assemble them into a single English phrase, and enter the result in the <b>"ENTER THE GLOBAL KEY"</b> field below to unlock the next system phase!`,
+                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ ALL FRAGMENTS FOUND! ⚠️</span>The matrix is fully open. Look at all the fragments in the comments, assemble them by numbers from 1 to 28 into a single English phrase, and enter the result in the <b>"ENTER THE GLOBAL KEY"</b> field below to unlock the next system phase!`,
                 online: "ONLINE NOW",
                 progress: "FRAGMENTS FOUND",
                 timerLbl: "TIME REMAINING",
@@ -367,7 +376,7 @@
                 stage1Error: "ERROR: INVALID KEY. ACCESS DENIED.",
                 stage2Title: "STAGE 2 / LEVEL 2",
                 stage2Mission: "Congratulations! The first layer of defense has fallen. You have proven the power of collective intelligence.",
-                stage2Hint: "Look 'under the hood' (F12), find 'SECRET_BACKDOOR' and type it here.",
+                stage2Hint: "Look 'under the hood' (F12), find the secure logic and type the backdoor code here.",
                 stage2Btn: "Bypass Terminal",
                 stage2Error: "DECRYPTION FAILED. ACCESS DENIED.",
                 stage3Title: "SYSTEM UNLOCKED",
@@ -376,7 +385,7 @@
             },
             ru: {
                 mission: "Один человек принципиально не сможет пройти этот квест. Истина разделена между жителями Земли. Объединяйтесь и делитесь своими частями. Глобальный счётчик прогресса сдвинется с места только тогда, когда Вы будете вручную вводить коды, полученные от других участников.",
-                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ВСЕ ФРАГМЕНТЫ СОБРАНЫ!⚠️</span>Истина полностью открыта. Посмотрите на все найденные фрагменты, сложите в единую фразу и введите полученный результат в поле <b>«ВВЕСТИ ГЛОБАЛЬНЫЙ КЛЮЧ»</b> ниже, чтобы запустить следующий этап системы!`,
+                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ ВСЕ ФРАГМЕНТЫ СОБРАНЫ! ⚠️</span>Истина полностью открыта. Посмотрите на все найденные фрагменты в комментариях, сложите их по номерам от 1 до 28 в единую фразу на английском языке и введите полученный результат в поле <b>«ВВЕСТИ ГЛОБАЛЬНЫЙ КЛЮЧ»</b> ниже, чтобы запустить следующий этап системы!`,
                 online: "СЕЙЧАС В СЕТИ",
                 progress: "НАЙДЕНО ФРАГМЕНТОВ",
                 timerLbl: "ВРЕМЕНИ ОСТАЛОСЬ",
@@ -404,7 +413,7 @@
                 stage1Error: "ОШИБКА: НЕВЕРНЫЙ КЛЮЧ. В ДОСТУПЕ ОТКАЗАНО.",
                 stage2Title: "ЭТАП 2 / УРОВЕНЬ 2",
                 stage2Mission: "Поздравляем! Первый рубеж обороны пройден. Вы доказали силу коллективного разума.",
-                stage2Hint: "Загляните «под капот» (F12), найдите переменную 'SECRET_BACKDOOR' и введите её значение здесь.",
+                stage2Hint: "Загляните «под капот» (F12), разберитесь в защитной логике и введите правильный код доступа здесь.",
                 stage2Btn: "Взломать терминал",
                 stage2Error: "СБОЙ ДЕШИФРОВАНИЯ. В ДОСТУПЕ ОТКАЗАНО.",
                 stage3Title: "СИСТЕМА РАЗБЛОКИРОВАНА",
@@ -527,7 +536,6 @@
 
             if (db) {
                 const likeRef = db.ref('likes_count');
-                // Атомарная серверная транзакция Firebase: предотвращает баги кэша и перетирание данных
                 likeRef.transaction((currentValue) => {
                     return (currentValue || 0) + 1;
                 }, (error, committed, snapshot) => {
@@ -594,7 +602,6 @@
                 document.getElementById('live-online').innerText = snap.numChildren() || 1;
             });
             
-            // Отслеживание собранных фрагментов + Глобальное уведомление о финише
             db.ref('found_fragments/').on('value', (snap) => {
                 const totalFound = snap.numChildren() || 0;
                 document.getElementById('live-progress').innerText = `${totalFound} / 28`;
@@ -617,15 +624,15 @@
             });
         }
 
-        if (localStorage.getItem('enigma_liked_v6')) {
+        if (localStorage.getItem('enigma_liked_v5')) {
             document.getElementById('like-button').classList.add('liked');
         }
 
         // --- TIMER ---
-        let targetDate = localStorage.getItem('enigma_target_date_v8');
+        let targetDate = localStorage.getItem('enigma_target_date_v7');
         if (!targetDate) {
             targetDate = new Date().getTime() + (35 * 24 * 60 * 60 * 1000);
-            localStorage.setItem('enigma_target_date_v8', targetDate);
+            localStorage.setItem('enigma_target_date_v7', targetDate);
         }
         function updateTimer() {
             const now = new Date().getTime(); const difference = targetDate - now;
@@ -638,10 +645,13 @@
         }
         setInterval(updateTimer, 1000); updateTimer();
 
-        // --- VALIDATION KEYS ---
-        function checkStage1() {
+        // --- ASYNC VALIDATION KEYS (SHA-256) ---
+        async function checkStage1() {
             const t = translations[currentLang];
-            if (document.getElementById('solution').value.trim().toUpperCase() === SECRET_ANSWER) {
+            const userInput = document.getElementById('solution').value.trim().toUpperCase();
+            const userHash = await sha256(userInput);
+
+            if (userHash === HASH_ANSWER) {
                 document.getElementById('result-message').className = "feedback-msg success";
                 document.getElementById('result-message').innerText = t.stage1Success;
                 setTimeout(() => {
@@ -653,9 +663,13 @@
                 document.getElementById('result-message').innerText = t.stage1Error;
             }
         }
-        function checkStage2() {
+
+        async function checkStage2() {
             const t = translations[currentLang];
-            if (document.getElementById('stage2-input').value.trim() === SECRET_BACKDOOR) {
+            const userInput = document.getElementById('stage2-input').value.trim();
+            const userHash = await sha256(userInput);
+
+            if (userHash === HASH_BACKDOOR) {
                 document.getElementById('stage2').classList.add('hidden');
                 document.getElementById('stage3').classList.remove('hidden');
             } else {
