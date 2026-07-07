@@ -315,10 +315,14 @@
             appId: "1:494269568517:web:27b476d6ac0e214ddfee6c"
         };
         
-        let db;
-        if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
+        let db = null;
+        if(firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.apiKey !== "") {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            } catch(e) {
+                console.error("Firebase initialization failed:", e);
+            }
         }
 
         // --- КРИПТОГРАФИЧЕСКАЯ ФУНКЦИЯ ХЭШИРОВАНИЯ (SHA-256) ---
@@ -361,8 +365,8 @@
             { id: 27, hash: "013f99479e000c069b2d86f7af204a9af8286a24be516ebf04bc6ba75c97bd58", raw: "T-28" }
         ];
 
-        // Зашифрованные слепки этапов
-        const HASH_ANSWER = "9bf47ad3e4a9e5251664bfeb5d444458f3fb1e7ba25880795764d858348b4f17"; 
+        // ИСПРАВЛЕНО: Новый хэш SHA-256 для капс-строки "THE MATRIX HAS YOU FOLLOW THE WHITE RABBIT"
+        const HASH_ANSWER = "5801ad47a50da30f367e9124451731671e21bfa6747b06822fc908e75298a08d"; 
         const HASH_BACKDOOR = "a69485b0cb5ee11603ba78028f895cd4e2b02787fc3880536c4b2b2fa84d2bd9";
 
         // --- MULTILANGUAGE DICTIONARY ---
@@ -564,7 +568,7 @@
                 likeRef.transaction((currentValue) => {
                     return (currentValue || 0) + 1;
                 }, (error, committed, snapshot) => {
-                    if (committed) {
+                    if (committed && snapshot) {
                         localStorage.setItem('enigma_liked_v5', 'true');
                         btn.classList.add('liked');
                         document.getElementById('like-btn-text').innerText = t.likedBtn;
@@ -671,7 +675,6 @@
         // --- ASYNC VALIDATION KEYS (SHA-256) ---
         async function checkStage1() {
             const t = translations[currentLang];
-            // Нормализация текста: удаляет любые случайные двойные пробелы, табы или переносы строк
             const userInput = document.getElementById('solution').value.trim().toUpperCase().replace(/\s+/g, ' ');
             const userHash = await sha256(userInput);
 
