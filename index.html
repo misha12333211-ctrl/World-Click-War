@@ -14,22 +14,32 @@
 
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2255%%22 font-size=%2280%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>🔒</text></svg>">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --card-bg: #1f2833;
-            --accent-color: #66fcf1;
-            --text-main: #ffffff;
-            --text-muted: #c5c6c7;
-            --error-red: #ff4a4a;
-            --font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'Courier New', Courier, monospace;
+            --bg-color: #06080c;
+            --card-bg: rgba(18, 24, 38, 0.65);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --accent-color: #00f2fe;
+            --accent-glow: rgba(0, 242, 254, 0.25);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --error-red: #ff4757;
+            --success-green: #2ed573;
+            --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(0, 242, 254, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(102, 252, 241, 0.02) 0%, transparent 40%);
             color: var(--text-main);
             font-family: var(--font-main);
             display: flex;
@@ -37,156 +47,209 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px;
             position: relative;
+            overflow-x: hidden;
         }
 
         .lang-switcher {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             z-index: 10;
         }
         .lang-btn {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
             color: var(--text-muted);
-            padding: 5px 10px;
+            padding: 6px 14px;
             font-size: 0.8rem;
-            font-weight: bold;
-            border-radius: 4px;
+            font-weight: 700;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font-mono);
         }
         .lang-btn.active {
             border-color: var(--accent-color);
             color: var(--accent-color);
-            background: rgba(102, 252, 241, 0.05);
+            background: rgba(0, 242, 254, 0.08);
+            box-shadow: 0 0 12px var(--accent-glow);
         }
         .lang-btn:hover:not(.active) {
-            border-color: rgba(255, 255, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.2);
             color: var(--text-main);
+            background: rgba(255, 255, 255, 0.07);
         }
 
         .container {
-            max-width: 650px; width: 100%; text-align: center;
-            background: var(--card-bg); padding: 45px 30px; border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 25px;
+            max-width: 580px; width: 100%; text-align: center;
+            background: var(--card-bg); 
+            padding: 50px 35px; 
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            margin-bottom: 30px;
             margin-top: 40px;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
-        h1 { font-size: 2rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 15px; }
-        h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 15px; }
-        .mission-text { font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; color: var(--text-muted); }
+        h1 { 
+            font-size: 2.2rem; 
+            font-weight: 800; 
+            letter-spacing: 3px; 
+            margin-bottom: 20px; 
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h2 { 
+            font-size: 1.6rem; 
+            font-weight: 800; 
+            letter-spacing: 2px; 
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .mission-text { 
+            font-size: 0.95rem; 
+            line-height: 1.6; 
+            margin-bottom: 35px; 
+            color: var(--text-muted); 
+            font-weight: 400;
+        }
 
         .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;
-            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 35px;
         }
-        .stat-box { text-align: center; }
-        .stat-val { font-family: var(--font-mono); font-size: 1.4rem; font-weight: bold; color: var(--accent-color); }
-        .stat-lbl { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+        .stat-box { 
+            text-align: center; 
+            background: rgba(0, 0, 0, 0.2); 
+            padding: 16px; 
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        .stat-val { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--accent-color); text-shadow: 0 0 10px var(--accent-glow); }
+        .stat-lbl { font-size: 0.7rem; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-top: 6px; }
 
-        .timer-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-color); margin-bottom: 5px; }
-        #timer { font-size: 3.2rem; font-family: var(--font-mono); font-weight: bold; margin-bottom: 35px; }
+        .timer-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 8px; }
+        #timer { 
+            font-size: 3rem; 
+            font-family: var(--font-mono); 
+            font-weight: 700; 
+            margin-bottom: 40px; 
+            letter-spacing: -1px;
+            background: linear-gradient(180deg, #fff 40%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         .fragment-box {
-            background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 25px;
-            margin-bottom: 35px; border: 1px dashed rgba(102, 252, 241, 0.3);
+            background: rgba(0, 0, 0, 0.25); border-radius: 20px; padding: 25px;
+            margin-bottom: 40px; border: 1px dashed rgba(0, 242, 254, 0.25);
+            box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.02);
         }
-        .fragment-box h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
-        #user-fragment { font-size: 3rem; font-family: var(--font-mono); font-weight: bold; color: var(--accent-color); }
+        .fragment-box h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+        #user-fragment { font-size: 3.2rem; font-family: var(--font-mono); font-weight: 700; color: var(--accent-color); text-shadow: 0 0 15px var(--accent-glow); }
 
         .share-btn {
             background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color);
-            padding: 10px 20px; font-size: 0.85rem; font-weight: bold; border-radius: 4px;
-            margin-top: 15px; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
+            padding: 12px 24px; font-size: 0.8rem; font-weight: 700; border-radius: 10px;
+            margin-top: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .share-btn:hover { background: var(--accent-color); color: var(--bg-color); }
+        .share-btn:hover { background: var(--accent-color); color: var(--bg-color); box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-1px); }
 
         .input-sections-container {
-            display: flex; flex-direction: column; gap: 30px; margin-top: 35px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 30px;
+            display: flex; flex-direction: column; gap: 35px; margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 35px;
         }
 
-        .input-group { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
-        .input-group label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); text-align: center; }
+        .input-group { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+        .input-group label { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); text-align: center; line-height: 1.4; }
         
         input[type="text"] {
-            background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px; padding: 12px 20px; color: #ffffff; font-family: var(--font-mono);
-            font-size: 1.1rem; text-align: center; width: 100%; max-width: 400px; text-transform: uppercase; outline: none;
+            background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 14px 20px; color: #ffffff; font-family: var(--font-mono);
+            font-size: 1.1rem; text-align: center; width: 100%; max-width: 380px; text-transform: uppercase; outline: none;
+            transition: all 0.2s;
         }
-        input[type="text"]:focus { border-color: var(--accent-color); }
+        input[type="text"]:focus { border-color: var(--accent-color); box-shadow: 0 0 12px rgba(0, 242, 254, 0.15); background: rgba(0,0,0,0.4); }
 
         button.action-btn {
-            background: var(--accent-color); color: var(--bg-color); border: none; border-radius: 6px;
-            padding: 12px 30px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; transition: all 0.2s; cursor: pointer;
+            background: var(--accent-color); color: var(--bg-color); border: none; border-radius: 12px;
+            padding: 14px 35px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
         }
-        button.action-btn:hover { background: #ffffff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
+        button.action-btn:hover { background: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
 
-        .feedback-msg { font-weight: 600; font-size: 0.85rem; min-height: 18px; margin-top: 5px; text-align: center; width: 100%; }
-        .error { color: var(--error-red); }
-        .success { color: var(--accent-color); }
-        .hidden { display: none !important; }
+        .feedback-msg { font-weight: 600; font-size: 0.85rem; min-height: 20px; margin-top: 4px; text-align: center; width: 100%; }
+        .error { color: var(--error-red); text-shadow: 0 0 8px rgba(255, 71, 87, 0.2); }
+        .success { color: var(--success-green); text-shadow: 0 0 8px rgba(46, 213, 115, 0.2); }
+        .hidden { display: none !important; opacity: 0; transform: scale(0.95); }
 
         .like-container {
-            margin-top: 25px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1);
-            display: flex; justify-content: center; align-items: center; gap: 10px;
+            margin-top: 30px; padding-top: 25px; border-top: 1px dashed rgba(255,255,255,0.06);
+            display: flex; justify-content: center; align-items: center;
         }
         .like-btn {
-            background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-muted);
-            padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted);
+            padding: 10px 20px; border-radius: 100px; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
         }
-        .like-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        .like-btn.liked { background: rgba(102, 252, 241, 0.1); border-color: var(--accent-color); color: var(--accent-color); }
-        #like-count { font-family: var(--font-mono); font-weight: bold; }
+        .like-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .like-btn.liked { background: rgba(0, 242, 254, 0.08); border-color: var(--accent-color); color: var(--accent-color); box-shadow: 0 0 10px var(--accent-glow); }
+        #like-count { font-family: var(--font-mono); font-weight: 700; }
 
         .footer {
-            font-size: 0.8rem; color: rgba(255, 255, 255, 0.3); font-family: var(--font-mono);
-            text-align: center; margin-top: 10px; margin-bottom: 20px; line-height: 1.6;
+            font-size: 0.75rem; color: rgba(255, 255, 255, 0.2); font-family: var(--font-mono);
+            text-align: center; margin-top: 10px; margin-bottom: 25px; line-height: 1.8;
         }
-        .footer a { color: rgba(102, 252, 241, 0.5); text-decoration: none; transition: color 0.2s; }
+        .footer a { color: rgba(0, 242, 254, 0.4); text-decoration: none; transition: color 0.2s; }
         .footer a:hover { color: var(--accent-color); text-decoration: underline; }
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); display: flex; align-items: center;
+            background: rgba(4, 6, 10, 0.85); display: flex; align-items: center;
             justify-content: center; z-index: 100; opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease;
+            backdrop-filter: blur(8px);
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal {
-            background: var(--card-bg); padding: 30px; border-radius: 12px;
-            max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--accent-color);
-            box-shadow: 0 0 30px rgba(102, 252, 241, 0.2); transform: scale(0.8); transition: transform 0.3s ease;
+            background: #111622; padding: 35px; border-radius: 24px;
+            max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--card-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .modal-overlay.active .modal { transform: scale(1); }
-        .modal h2 { font-size: 1.3rem; margin-bottom: 20px; letter-spacing: 1px; color: var(--accent-color); }
-        #qrcode { background: white; padding: 15px; border-radius: 8px; display: inline-block; margin-bottom: 20px; }
+        .modal h2 { font-size: 1.2rem; margin-bottom: 20px; letter-spacing: 1px; color: var(--accent-color); }
+        #qrcode { background: white; padding: 16px; border-radius: 16px; display: inline-block; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         #qrcode img { display: block; margin: 0 auto; }
         .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
         .modal-btn {
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; padding: 12px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            color: #fff; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; cursor: pointer;
+            font-family: var(--font-main);
         }
-        .modal-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        .close-modal { background: var(--accent-color); color: var(--bg-color); border: none; margin-top: 10px; }
+        .modal-btn:hover { border-color: var(--accent-color); color: var(--accent-color); background: rgba(0, 242, 254, 0.04); }
+        .close-modal { background: var(--accent-color); color: var(--bg-color); border: none; margin-top: 10px; font-weight: 700; }
+        .close-modal:hover { background: #fff; color: var(--bg-color); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
         
-        #modal-toast { font-size: 0.85rem; margin-top: 10px; min-height: 18px; font-weight: 600; }
-        .ascii-meme { font-size: 11px; line-height: 12px; white-space: pre; margin: 25px auto; display: inline-block; font-family: monospace; color: var(--accent-color); }
+        #modal-toast { font-size: 0.8rem; margin-top: 12px; min-height: 18px; font-weight: 600; font-family: var(--font-mono); }
+        .ascii-meme { font-size: 10px; line-height: 11px; white-space: pre; margin: 25px auto; display: inline-block; font-family: var(--font-mono); color: var(--accent-color); text-shadow: 0 0 8px var(--accent-glow); }
 
         @media (max-width: 600px) {
-            h1 { font-size: 1.6rem; }
+            h1 { font-size: 1.8rem; }
             h2 { font-size: 1.3rem; }
-            #timer { font-size: 2.2rem; }
-            #user-fragment { font-size: 2.4rem; }
+            #timer { font-size: 2.3rem; }
+            #user-fragment { font-size: 2.6rem; }
+            .container { padding: 35px 20px; margin-top: 60px; }
         }
     </style>
 </head>
@@ -282,7 +345,7 @@
     </div>
 
     <div class="footer">
-        PROJECT: ENIGMA 35 &copy; 2026<br> | <a href="https://github.com/misha12333211-ctrl/Enigma-35" target="_blank" style="opacity: 0.5; font-size: 0.75rem;">[ Source Code ]</a><br>
+        PROJECT: ENIGMA 35 &copy; 2026<br> | <a href="https://github.com/misha12333211-ctrl/Enigma-35" target="_blank" style="opacity: 0.6; font-size: 0.75rem;">[ Source Code ]</a><br>
         <span id="lbl-footer-contact">For any questions/feedback contact:</span> <a href="mailto:fatago78@gmail.com">fatago78@gmail.com</a>
     </div>
 
@@ -321,7 +384,7 @@
             db = firebase.database();
         }
 
-        // --- КРИПТОГРАФИЧЕСКАЯ ФУНКЦИЯ ХЭШИРОВАНИЯ (SHA-256) ---
+        // КРИПТОГРАФИЧЕСКАЯ ФУНКЦИЯ ХЭШИРОВАНИЯ (SHA-256)
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);                    
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -329,48 +392,15 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Пул ТОЛЬКО хэшированных фрагментов. Исходные значения удалены, чтобы их нельзя было подсмотреть.
-        const ENCRYPTED_POOL = [
-            { id: 1, hash: "2cf04543d2c77d466f2a890453f65e2b090a98f79f8ee167b5790d0b04a806d2" }, // T-1
-            { id: 2, hash: "4be489979720b001a154d805094254f664df03534b8c9497e8ec8e0cb20e985b" }, // H-2
-            { id: 3, hash: "d85fc531b7829285fb7bc99cb2be3752e008fa0641b63dd107293a9d94657155" }, // E-3
-            { id: 4, hash: "614cfc92f15309600a94488bfa6b46ef22e84c9bd04ec7cf57421cb4178da709" }, // M-4
-            { id: 5, hash: "2504246830723db59b646c071fa6ae41199a0e66da9bc758a08157140f7d0fb9" }, // A-5
-            { id: 6, hash: "80983177894a434226d7cf5cd37e2968ec9e54a691fb342b58b4df54b9d0dc6a" }, // T-6
-            { id: 7, hash: "7c13a213e4b779a1f0a2e054ba5f51722e030a612537c359d9f59fbfb6bfa8a7" }, // R-7
-            { id: 8, hash: "d0701967cb560411a7f05256561fb982b6c1ec58451f28b4931a108e404bf02e" }, // I-8
-            { id: 9, hash: "804d0fa3b423d2427b3701217e6be98a3f8fa3c072b07e78ee2b814efbf4325c" }, // X-9
-            { id: 10, hash: "1d49605d836fa5130b13f17d23f7bc86e417df47e4eb1d3ee5c2763f350c30a8" }, // H-10
-            { id: 11, hash: "4199c0dae8fdf05a069bc003cf1c3f81e35fa84589d3844fa007be060ba108f9" }, // A-11
-            { id: 12, hash: "777cbf62589574ef81f855f5240bc7e30fc182270914d8b9d6a36412e1ecb614" }, // S-12
-            { id: 13, hash: "bf3b76ca5b487b2b6c7a3617300c02be55f0535a60e060ee022d4f3b5a19b88f" }, // Y-13
-            { id: 14, hash: "22061da2d140b9be00c8227da0844f2bb7ee542ef7bfa69352e008ba8c22da78" }, // O-14
-            { id: 15, hash: "69a23c3167b2d56a1b24bf74d75d68804593ae5f91e1d03390f77b78909f18a2" }, // U-15
-            { id: 16, hash: "c6a08bc79e6027c4fb712534a17fe94a6125ff16ea28bf0bb1e247b9ec59b7df" }, // F-16
-            { id: 17, hash: "2f281e01861a491ef2b89d428ca433878b309f7a77d704af52af492cfa77d5ef" }, // O-17
-            { id: 18, hash: "95669b917578ec09a5585b736780ee2c27702f357f0003b3558f62c8fa62ccb9" }, // L-18
-            { id: 19, hash: "a098aa9fa44e78f7e7e6005d5483244837549646b10702ca9595f92ff4cb941e" }, // L-19
-            { id: 20, hash: "937841e204c3d8036980004ffbe022a1f46f4eb80687e83460f9ca290f6ee841" }, // O-20
-            { id: 21, hash: "4d6d37014643b0fcbb61ba08dc137449c256a4221a41857c793ff82fe1a8a29a" }, // W-21
-            { id: 22, hash: "4776156e7dfbf3fec30e0600a9446d7e63ee9a07357774903a985d8d06d4e1bf" }, // T-22
-            { id: 23, hash: "81e3518e11a3d52d9a30cf1923be2a95f9f6dae3d23dca7c5b6b158022756ba8" }, // H-23
-            { id: 24, hash: "277e98a58a7f9a2e6f481c905391edccb9cb96e95b05872cf52d5da4446b7a97" }, // E-24
-            { id: 25, hash: "fec92c01fcbf8aeb5b0ffcf0e3579b1df09e69ba3084bf93b827e7ebec17cf7b" }, // W-25
-            { id: 26, hash: "6ccf5af2f778f657512217cbe3d3cfcb2321112d48373b5e43b171f114c029eb" }, // H-26
-            { id: 27, hash: "3bf7e2467389c9e83ec0bf7246738c82305370d04dbec85ee9c98b67f677fb84" }, // I-27
-            { id: 28, hash: "013f99479e000c069b2d86f7af204a9af8286a24be516ebf04bc6ba75c97bd58" }  // T-28
-        ];
-
-        // Соответствия ID элементов буквам для генерации фрагмента пользователю без хранения открытого пула
         const FRAGMENT_CHARS = {
             1:"T", 2:"H", 3:"E", 4:"M", 5:"A", 6:"T", 7:"R", 8:"I", 9:"X", 10:"H", 
             11:"A", 12:"S", 13:"Y", 14:"O", 15:"U", 16:"F", 17:"O", 18:"L", 19:"L", 
             20:"O", 21:"W", 22:"T", 23:"H", 24:"E", 25:"W", 26:"H", 27:"I", 28:"T"
         };
 
-        // Зашифрованные слепки этапов
-        const HASH_ANSWER = "9bf47ad3e4a9e5251664bfeb5d444458f3fb1e7ba25880795764d858348b4f17"; 
-        const HASH_BACKDOOR = "a69485b0cb5ee11603ba78028f895cd4e2b02787fc3880536c4b2b2fa84d2bd9";
+        // Захэшированные секреты
+        const HASH_ANSWER = "6fa94cb149177114cf3957eb1f0cf85fb4a45763bf45d4c20573e04cf4fa9960";    // THEMATRIXHASYOU
+        const HASH_BACKDOOR = "a69485b0cb5ee11603ba78028f895cd4e2b02787fc3880536c4b2b2fa84d2bd9";  // FOLLOWTHEWHITERABBIT
 
         // --- MULTILANGUAGE DICTIONARY ---
         let currentLang = localStorage.getItem('enigma_lang') || 'en';
@@ -378,8 +408,8 @@
         
         const translations = {
             en: {
-                mission: "One person cannot solve this alone. The truth is divided among all inhabitants of Earth. Unite, share your pieces. The progress counter will only tick up when you manually input other players' fragments.",
-                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ ALL FRAGMENTS FOUND! ⚠️</span>The matrix is fully open. Look at all the fragments in the comments, assemble them by numbers from 1 to 28 into a single English phrase, and enter the result in the <b>"ENTER THE GLOBAL KEY"</b> field below to unlock the next system phase!`,
+                mission: "One person cannot solve this alone. The truth is divided among all inhabitants of Earth. Unite, share your pieces. Enter your own fragment or pieces from other players to fill the global matrix tracker.",
+                alertMission: `<span style="color: #00f2fe; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);">⚠️ ALL FRAGMENTS FOUND! ⚠️</span>The matrix is fully open. Look at all the fragments in the comments, assemble them by numbers into a single phrase WITHOUT SPACES, and enter the result in the <b>"ENTER THE GLOBAL KEY"</b> field below to unlock Stage 2!`,
                 online: "ONLINE NOW",
                 progress: "FRAGMENTS FOUND",
                 timerLbl: "TIME REMAINING",
@@ -398,7 +428,6 @@
                 modalCloseBtn: "Close",
                 errNotExist: "ERROR: This fragment code does not exist.",
                 errAlready: "NOTICE: This fragment has already been registered.",
-                errOwn: "ERROR: You cannot activate your own code.",
                 successFrag: "SUCCESS: New puzzle piece locked into the global matrix!",
                 successFragOffline: "SUCCESS: New puzzle piece locked! (Offline Mode)",
                 toastUrl: "URL copied!",
@@ -415,14 +444,14 @@
                 shareTextTemplate: (frag, url) => `[PROJECT: ENIGMA 35]\n🌍 My cipher fragment: { ${frag} }\n🔑 Input it here to decrypt the system matrix: ${url}`
             },
             ru: {
-                mission: "Один человек принципиально не сможет пройти этот квест. Истина разделена между жителями Земли. Объединяйтесь и делитесь своими частями. Глобальный счётчик прогресса сдвинется с места только тогда, когда Вы будете вручную вводить коды, полученные от других участников.",
-                alertMission: `<span style="color: #66fcf1; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">⚠️ ВСЕ ФРАГМЕНТЫ СОБРАНЫ! ⚠️</span>Истина полностью открыта. Посмотрите на все найденные фрагменты в комментариях, сложите их по номерам от 1 до 28 в единую фразу на английском языке и введите полученный результат в поле <b>«ВВЕСТИ ГЛОБАЛЬНЫЙ КЛЮЧ»</b> ниже, чтобы запустить следующий этап системы!`,
+                mission: "Один человек принципиально не сможет пройти этот квест. Истина разделена между жителями Земли. Объединяйтесь и делитесь своими частями. Вводите свой собственный фрагмент или коды других игроков, чтобы заполнить шкалу прогресса.",
+                alertMission: `<span style="color: #00f2fe; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);">⚠️ ВСЕ ФРАГМЕНТЫ СОБРАНЫ! ⚠️</span>Истина полностью открыта. Посмотрите на фрагменты в комментариях, сложите их по номерам в единую фразу БЕЗ ПРОБЕЛОВ и введите полученный результат в поле <b>«ВВЕСТИ ГЛОБАЛЬНЫЙ КЛЮЧ»</b> ниже, чтобы открыть следующий этап!`,
                 online: "СЕЙЧАС В СЕТИ",
                 progress: "НАЙДЕНО ФРАГМЕНТОВ",
                 timerLbl: "ВРЕМЕНИ ОСТАЛОСЬ",
                 yourFrag: "Ваш уникальный фрагмент шифра:",
                 shareBtn: "Поделиться проектом",
-                inputFragLbl: "ЗАРЕГИСТРИРОВАТЬ КОД ДРУГОГО УЧАСТНИКА (например, T-1):",
+                inputFragLbl: "ЗАРЕГИСТРИРОВАТЬ КОД (например, T-1 или ваш собственный):",
                 submitFragBtn: "Проверить фрагмент",
                 inputKeyLbl: "ВВЕСТИ ГЛОБАЛЬНЫЙ КЛЮЧ:",
                 verifyKeyBtn: "Проверить ключ",
@@ -435,7 +464,6 @@
                 modalCloseBtn: "Закрыть",
                 errNotExist: "ОШИБКА: Такого кода не существует в системе.",
                 errAlready: "УВЕДОМЛЕНИЕ: Этот фрагмент уже был зарегистрирован ранее.",
-                errOwn: "ОШИБКА: Вы не можете активировать свой собственный фрагмент.",
                 successFrag: "УСПЕХ: Новый фрагмент успешно встроен в глобальную матрицу!",
                 successFragOffline: "УСПЕХ: Фрагмент зафиксирован! (Оффлайн-режим)",
                 toastUrl: "Ссылка успешно скопирована!",
@@ -457,10 +485,10 @@
             const missionBlock = document.getElementById('text-mission');
             if (isGlobalAlertActive) {
                 missionBlock.innerHTML = t.alertMission;
-                missionBlock.style.border = "1px solid #66fcf1";
-                missionBlock.style.padding = "15px";
-                missionBlock.style.borderRadius = "8px";
-                missionBlock.style.background = "rgba(102, 252, 241, 0.05)";
+                missionBlock.style.border = "1px solid rgba(0, 242, 254, 0.2)";
+                missionBlock.style.padding = "20px";
+                missionBlock.style.borderRadius = "16px";
+                missionBlock.style.background = "rgba(0, 242, 254, 0.03)";
             } else {
                 missionBlock.innerText = t.mission;
                 missionBlock.style.border = "none";
@@ -472,7 +500,6 @@
         function setLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('enigma_lang', lang);
-            
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
             document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
             
@@ -509,37 +536,40 @@
             document.getElementById('stage2-message').innerText = "";
         }
 
-        // --- UNIQUE FRAGMENT ASSIGNMENT (БЕЗОПАСНАЯ ГЕНЕРАЦИЯ) ---
+        // --- UNIQUE FRAGMENT ASSIGNMENT ---
         let userFragment = localStorage.getItem('enigma_user_fragment_v5');
         if (!userFragment) {
-            const randomIndex = Math.floor(Math.random() * ENCRYPTED_POOL.length);
-            const selectedNode = ENCRYPTED_POOL[randomIndex];
-            const char = FRAGMENT_CHARS[selectedNode.id];
-            userFragment = `${char}-${selectedNode.id}`;
+            const keys = Object.keys(FRAGMENT_CHARS);
+            const randomId = keys[Math.floor(Math.random() * keys.length)];
+            const char = FRAGMENT_CHARS[randomId];
+            userFragment = `${char}-${randomId}`;
             localStorage.setItem('enigma_user_fragment_v5', userFragment);
         }
         document.getElementById('user-fragment').innerText = userFragment;
 
         setLanguage(currentLang);
 
+        // --- SUBMIT FRAGMENT ---
         async function submitFragment() {
             const inputField = document.getElementById('fragment-input');
             const msgBlock = document.getElementById('frag-message');
-            const value = inputField.value.trim().toUpperCase();
+            
+            const value = inputField.value.replace(/\s+/g, '').toUpperCase();
             const t = translations[currentLang];
 
-            const inputHash = await sha256(value);
-            const foundNode = ENCRYPTED_POOL.find(item => item.hash === inputHash);
-
-            if (!foundNode) {
+            const parts = value.split('-');
+            if (parts.length !== 2) {
                 msgBlock.className = "feedback-msg error";
                 msgBlock.innerText = t.errNotExist;
                 return;
             }
 
-            if (value === userFragment) {
+            const inputChar = parts[0];
+            const inputId = parseInt(parts[1], 10);
+
+            if (!FRAGMENT_CHARS[inputId] || FRAGMENT_CHARS[inputId] !== inputChar) {
                 msgBlock.className = "feedback-msg error";
-                msgBlock.innerText = t.errOwn;
+                msgBlock.innerText = t.errNotExist;
                 return;
             }
 
@@ -596,7 +626,7 @@
                     text: window.location.href,
                     width: 160,
                     height: 160,
-                    colorDark : "#0b0c10",
+                    colorDark : "#06080c",
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.H
                 });
@@ -607,7 +637,7 @@
         
         function showModalToast(text, status) {
             const toast = document.getElementById('modal-toast');
-            toast.innerText = text; toast.className = status;
+            toast.innerText = text; toast.className = toast.className = "feedback-msg " + status;
             setTimeout(() => { toast.innerText = ""; }, 3000);
         }
         function copyOnlyLink() {
@@ -620,7 +650,7 @@
             navigator.clipboard.writeText(shareText).then(() => { showModalToast(t.toastFull, "success"); });
         }
 
-        // --- FIREBASE REALTIME SYNC ---
+        // --- FIREBASE SYNC ---
         if(db) {
             const onlineRef = db.ref('.info/connected');
             const myPresenceRef = db.ref('presence/').push();
@@ -677,18 +707,25 @@
         }
         setInterval(updateTimer, 1000); updateTimer();
 
-        // --- ASYNC VALIDATION KEYS (SHA-256) ---
+        // --- CHECK KEYS ---
         async function checkStage1() {
             const t = translations[currentLang];
-            const userInput = document.getElementById('solution').value.trim().toUpperCase().replace(/\s+/g, ' ');
+            const userInput = document.getElementById('solution').value.replace(/\s+/g, '').toUpperCase();
             const userHash = await sha256(userInput);
 
+            // Исправлена критическая опечатка HUSH_ANSWER -> HASH_ANSWER
             if (userHash === HASH_ANSWER) {
                 document.getElementById('result-message').className = "feedback-msg success";
                 document.getElementById('result-message').innerText = t.stage1Success;
                 setTimeout(() => {
-                    document.getElementById('stage1').classList.add('hidden');
-                    document.getElementById('stage2').classList.remove('hidden');
+                    const s1 = document.getElementById('stage1');
+                    s1.style.opacity = '0';
+                    setTimeout(() => {
+                        s1.classList.add('hidden');
+                        const s2 = document.getElementById('stage2');
+                        s2.classList.remove('hidden');
+                        setTimeout(() => { s2.style.opacity = '1'; }, 50);
+                    }, 400);
                 }, 1000);
             } else {
                 document.getElementById('result-message').className = "feedback-msg error";
@@ -698,12 +735,18 @@
 
         async function checkStage2() {
             const t = translations[currentLang];
-            const userInput = document.getElementById('stage2-input').value.trim();
+            const userInput = document.getElementById('stage2-input').value.replace(/\s+/g, '').toUpperCase();
             const userHash = await sha256(userInput);
 
             if (userHash === HASH_BACKDOOR) {
-                document.getElementById('stage2').classList.add('hidden');
-                document.getElementById('stage3').classList.remove('hidden');
+                const s2 = document.getElementById('stage2');
+                s2.style.opacity = '0';
+                setTimeout(() => {
+                    s2.classList.add('hidden');
+                    const s3 = document.getElementById('stage3');
+                    s3.classList.remove('hidden');
+                    setTimeout(() => { s3.style.opacity = '1'; }, 50);
+                }, 400);
             } else {
                 document.getElementById('stage2-message').className = "feedback-msg error";
                 document.getElementById('stage2-message').innerText = t.stage2Error;
