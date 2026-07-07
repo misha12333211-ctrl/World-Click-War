@@ -504,7 +504,7 @@
             }
         }
 
-        // --- LIKES LOGIC ---
+        // --- LIKES LOGIC --
         function handleLike() {
             const btn = document.getElementById('like-button');
             const t = translations[currentLang];
@@ -512,12 +512,18 @@
 
             if (db) {
                 const likeRef = db.ref('likes_count');
-                likeRef.transaction((currentLikes) => {
-                    return (currentLikes || 0) + 1;
-                }, () => {
-                    localStorage.setItem('enigma_liked_v5', 'true');
-                    btn.classList.add('liked');
-                    document.getElementById('like-btn-text').innerText = t.likedBtn;
+                likeRef.once('value', (snapshot) => {
+                    let currentLikes = snapshot.val() || 0;
+                    let newLikes = currentLikes + 1;
+                    
+                    likeRef.set(newLikes).then(() => {
+                        localStorage.setItem('enigma_liked_v5', 'true');
+                        btn.classList.add('liked');
+                        document.getElementById('like-btn-text').innerText = t.likedBtn;
+                        document.getElementById('like-count').innerText = newLikes;
+                    }).catch((error) => {
+                        console.error("Firebase Like Error: ", error);
+                    });
                 });
             } else {
                 localStorage.setItem('enigma_liked_v5', 'true');
@@ -526,6 +532,7 @@
                 document.getElementById('like-btn-text').innerText = t.likedBtn;
             }
         }
+
 
         let qrGenerated = false;
         function openShareModal() {
