@@ -617,15 +617,15 @@
             });
         }
 
-        if (localStorage.getItem('enigma_liked_v5')) {
+        if (localStorage.getItem('enigma_liked_v6')) {
             document.getElementById('like-button').classList.add('liked');
         }
 
         // --- TIMER ---
-        let targetDate = localStorage.getItem('enigma_target_date_v7');
+        let targetDate = localStorage.getItem('enigma_target_date_v8');
         if (!targetDate) {
             targetDate = new Date().getTime() + (35 * 24 * 60 * 60 * 1000);
-            localStorage.setItem('enigma_target_date_v7', targetDate);
+            localStorage.setItem('enigma_target_date_v8', targetDate);
         }
         function updateTimer() {
             const now = new Date().getTime(); const difference = targetDate - now;
