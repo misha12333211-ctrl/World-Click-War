@@ -531,10 +531,10 @@
         }
 
         // --- ЛОГИКА ТАЙМЕРА ---
-        let targetDate = localStorage.getItem('enigma_target_date_v5');
+        let targetDate = localStorage.getItem('enigma_target_date_v6');
         if (!targetDate) {
             targetDate = new Date().getTime() + (35 * 24 * 60 * 60 * 1000);
-            localStorage.setItem('enigma_target_date_v5', targetDate);
+            localStorage.setItem('enigma_target_date_v6', targetDate);
         }
         function updateTimer() {
             const now = new Date().getTime(); const difference = targetDate - now;
