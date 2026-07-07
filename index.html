@@ -329,7 +329,7 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Вместо текстовых фрагментов храним ТОЛЬКО ИХ ХЭШИ. Узнать фразу через F12 невозможно.
+        // Пул хэшированных фрагментов
         const ENCRYPTED_POOL = [
             { id: 0, hash: "2cf04543d2c77d466f2a890453f65e2b090a98f79f8ee167b5790d0b04a806d2", raw: "T-1" },
             { id: 1, hash: "4be489979720b001a154d805094254f664df03534b8c9497e8ec8e0cb20e985b", raw: "H-2" },
@@ -506,7 +506,7 @@
         let userFragment = localStorage.getItem('enigma_user_fragment_v5');
         if (!userFragment) {
             const randomIndex = Math.floor(Math.random() * ENCRYPTED_POOL.length);
-            userFragment = ENCRYPTED_POOL[randomIndex].raw; // Локально выдаем строку
+            userFragment = ENCRYPTED_POOL[randomIndex].raw;
             localStorage.setItem('enigma_user_fragment_v5', userFragment);
         }
         document.getElementById('user-fragment').innerText = userFragment;
@@ -671,7 +671,8 @@
         // --- ASYNC VALIDATION KEYS (SHA-256) ---
         async function checkStage1() {
             const t = translations[currentLang];
-            const userInput = document.getElementById('solution').value.trim().toUpperCase();
+            // Нормализация текста: удаляет любые случайные двойные пробелы, табы или переносы строк
+            const userInput = document.getElementById('solution').value.trim().toUpperCase().replace(/\s+/g, ' ');
             const userHash = await sha256(userInput);
 
             if (userHash === HASH_ANSWER) {
